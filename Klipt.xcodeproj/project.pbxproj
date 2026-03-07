@@ -1,0 +1,389 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		15F37CC31801A9FEA196C945 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */; };
+		1DEA5F02447FC8BF3C955CD4 /* PastePickerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */; };
+		32EAA9A315F97243B092ABEA /* KliptPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C41649D3E46481EC6A7C351 /* KliptPanel.swift */; };
+		5E8EA6046128185F69D43020 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977E6AAFC5794912477E1080 /* ClipboardStore.swift */; };
+		6D2C2B2DFCED6B700C8BF3C6 /* KliptApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED6A8BBBD809F49B5F1FACA /* KliptApp.swift */; };
+		72FC4A93C0E31A42241FB105 /* DropTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1A42DF7657B847E9931D96 /* DropTargetView.swift */; };
+		7F1948D90993CE0376833BFC /* ScreenshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C137386702C3E5214A40B036 /* ScreenshotService.swift */; };
+		81B0CC87A8E2441E5925FBD4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A09B2153D386152129F0A1EE /* Assets.xcassets */; };
+		88B3FBDF73BDD18E7E134B08 /* PastePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */; };
+		8C57EA1FABE440C9CC05294D /* DragTrayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */; };
+		9D6C5F1EDC421B19ECA5774B /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */; };
+		B99A8978814107D7E2DE9ED6 /* ClipItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */; };
+		C2E77540D2248CF9CAC2B8E6 /* ClipItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA9F876AAFAC6EE5B429F511 /* ClipItem.swift */; };
+		CE4408D010C6C5094BEAA672 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F069E24FBB9B6AC56C69BCDC /* SettingsView.swift */; };
+		E549032CC74515CE110CD71B /* KliptSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A44D93D887DBEB7F10D4F1 /* KliptSettings.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragTrayWindow.swift; sourceTree = "<group>"; };
+		1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
+		42A44D93D887DBEB7F10D4F1 /* KliptSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KliptSettings.swift; sourceTree = "<group>"; };
+		4C41649D3E46481EC6A7C351 /* KliptPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KliptPanel.swift; sourceTree = "<group>"; };
+		4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipItemView.swift; sourceTree = "<group>"; };
+		5245B65F6C731091C3B9B5B7 /* Klipt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Klipt.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastePickerView.swift; sourceTree = "<group>"; };
+		6DFC9BA07F482FEE116DDC92 /* Klipt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Klipt.entitlements; sourceTree = "<group>"; };
+		8538D5FD6BBAD6CF31631516 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastePickerPanel.swift; sourceTree = "<group>"; };
+		977E6AAFC5794912477E1080 /* ClipboardStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardStore.swift; sourceTree = "<group>"; };
+		A09B2153D386152129F0A1EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AC1A42DF7657B847E9931D96 /* DropTargetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropTargetView.swift; sourceTree = "<group>"; };
+		C137386702C3E5214A40B036 /* ScreenshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotService.swift; sourceTree = "<group>"; };
+		CA9F876AAFAC6EE5B429F511 /* ClipItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipItem.swift; sourceTree = "<group>"; };
+		EED6A8BBBD809F49B5F1FACA /* KliptApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KliptApp.swift; sourceTree = "<group>"; };
+		F069E24FBB9B6AC56C69BCDC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		2F537F704403757D93245BBE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */,
+				AC1A42DF7657B847E9931D96 /* DropTargetView.swift */,
+				4C41649D3E46481EC6A7C351 /* KliptPanel.swift */,
+				5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */,
+				F069E24FBB9B6AC56C69BCDC /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5096B3EC778D58DC0FB0CD2A /* Klipt */ = {
+			isa = PBXGroup;
+			children = (
+				EED6A8BBBD809F49B5F1FACA /* KliptApp.swift */,
+				8A3D393AE8A459A2F0B956C6 /* Models */,
+				7A51E68CD290FC843C760014 /* Resources */,
+				BE08BB9AE476723ED458F489 /* Services */,
+				2F537F704403757D93245BBE /* Views */,
+			);
+			path = Klipt;
+			sourceTree = "<group>";
+		};
+		50E8F0123D1757B220EC697F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5245B65F6C731091C3B9B5B7 /* Klipt.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7A51E68CD290FC843C760014 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A09B2153D386152129F0A1EE /* Assets.xcassets */,
+				8538D5FD6BBAD6CF31631516 /* Info.plist */,
+				6DFC9BA07F482FEE116DDC92 /* Klipt.entitlements */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		8A3D393AE8A459A2F0B956C6 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				977E6AAFC5794912477E1080 /* ClipboardStore.swift */,
+				CA9F876AAFAC6EE5B429F511 /* ClipItem.swift */,
+				42A44D93D887DBEB7F10D4F1 /* KliptSettings.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		9F9106A56CF51155AB00038B = {
+			isa = PBXGroup;
+			children = (
+				5096B3EC778D58DC0FB0CD2A /* Klipt */,
+				50E8F0123D1757B220EC697F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BE08BB9AE476723ED458F489 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */,
+				041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */,
+				5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */,
+				91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */,
+				C137386702C3E5214A40B036 /* ScreenshotService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5BF2D49C00612230802F8838 /* Klipt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4971D124C4C0E89E0CBDE700 /* Build configuration list for PBXNativeTarget "Klipt" */;
+			buildPhases = (
+				8328EE34CBB5107AF80066D1 /* Sources */,
+				6C8E632E36CD3BD6050DED9B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Klipt;
+			packageProductDependencies = (
+			);
+			productName = Klipt;
+			productReference = 5245B65F6C731091C3B9B5B7 /* Klipt.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F125C78210EBDB5EEC141D5E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = F650A1FE721A5719E2898A2A /* Build configuration list for PBXProject "Klipt" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 9F9106A56CF51155AB00038B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 50E8F0123D1757B220EC697F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5BF2D49C00612230802F8838 /* Klipt */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6C8E632E36CD3BD6050DED9B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81B0CC87A8E2441E5925FBD4 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8328EE34CBB5107AF80066D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2E77540D2248CF9CAC2B8E6 /* ClipItem.swift in Sources */,
+				B99A8978814107D7E2DE9ED6 /* ClipItemView.swift in Sources */,
+				9D6C5F1EDC421B19ECA5774B /* ClipboardMonitor.swift in Sources */,
+				5E8EA6046128185F69D43020 /* ClipboardStore.swift in Sources */,
+				8C57EA1FABE440C9CC05294D /* DragTrayWindow.swift in Sources */,
+				72FC4A93C0E31A42241FB105 /* DropTargetView.swift in Sources */,
+				15F37CC31801A9FEA196C945 /* HotkeyManager.swift in Sources */,
+				6D2C2B2DFCED6B700C8BF3C6 /* KliptApp.swift in Sources */,
+				32EAA9A315F97243B092ABEA /* KliptPanel.swift in Sources */,
+				E549032CC74515CE110CD71B /* KliptSettings.swift in Sources */,
+				1DEA5F02447FC8BF3C955CD4 /* PastePickerPanel.swift in Sources */,
+				88B3FBDF73BDD18E7E134B08 /* PastePickerView.swift in Sources */,
+				7F1948D90993CE0376833BFC /* ScreenshotService.swift in Sources */,
+				CE4408D010C6C5094BEAA672 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4A8767FC0D7077E540A59036 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Klipt/Resources/Klipt.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Klipt/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.klipt.Klipt;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		718231C751D9850C2DC363F8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Klipt/Resources/Klipt.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Klipt/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.klipt.Klipt;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		B16601B3C14BC39AF59BE1E5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = Klipt;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		F7E420624E457C31F2245694 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = Klipt;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4971D124C4C0E89E0CBDE700 /* Build configuration list for PBXNativeTarget "Klipt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				718231C751D9850C2DC363F8 /* Debug */,
+				4A8767FC0D7077E540A59036 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F650A1FE721A5719E2898A2A /* Build configuration list for PBXProject "Klipt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B16601B3C14BC39AF59BE1E5 /* Debug */,
+				F7E420624E457C31F2245694 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F125C78210EBDB5EEC141D5E /* Project object */;
+}
