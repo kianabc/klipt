@@ -1,20 +1,22 @@
 import SwiftUI
 import AppKit
 
-enum PastePickerTab: String, CaseIterable {
+enum KliptTab: String, CaseIterable {
     case all = "All"
     case text = "Text"
     case images = "Screenshots"
     case files = "Files"
     case pinned = "Pinned"
+    case settings = "Settings"
 
     var icon: String {
         switch self {
-        case .all: return "tray.full.fill"
-        case .text: return "doc.text.fill"
-        case .images: return "photo.fill"
-        case .files: return "doc.fill"
-        case .pinned: return "pin.fill"
+        case .all: return "square.grid.2x2"
+        case .text: return "text.alignleft"
+        case .images: return "photo"
+        case .files: return "doc"
+        case .pinned: return "pin"
+        case .settings: return "gearshape"
         }
     }
 
@@ -25,151 +27,407 @@ enum PastePickerTab: String, CaseIterable {
         case .images: return .purple
         case .files: return .orange
         case .pinned: return .yellow
+        case .settings: return .gray
         }
     }
 }
 
-struct PastePickerView: View {
+@Observable
+class KliptState {
+    var selectedTab: KliptTab = .all {
+        didSet { onTabChanged?(selectedTab) }
+    }
+    var selectedIndex: Int = 0
+    var isExpanded: Bool = false
+    var searchText: String = ""
+    var isDragMode: Bool = false
+    var onTabChanged: ((KliptTab) -> Void)?
+
+    func reset() {
+        selectedTab = .all
+        selectedIndex = 0
+        isExpanded = false
+        searchText = ""
+    }
+}
+
+struct KliptMainView: View {
     let store: ClipboardStore
     let clipboardMonitor: ClipboardMonitor
-    @State var selectedTab: PastePickerTab = .all
-    @State var selectedIndex: Int = 0
+    let settings: KliptSettings
+    @Bindable var state: KliptState
+    var onConfirm: (() -> Void)?
+    var onTogglePin: (() -> Void)?
+    var onToggleExpand: (() -> Void)?
+    var onShortcutsChanged: (() -> Void)?
+
+    @State private var showClearConfirmation = false
+    @State private var isDragTargeted = false
 
     var items: [ClipItem] {
-        switch selectedTab {
-        case .all: return store.items
-        case .text: return store.textItems
-        case .images: return store.imageItems
-        case .files: return store.fileItems
-        case .pinned: return store.pinnedItems
+        let base: [ClipItem]
+        switch state.selectedTab {
+        case .all: base = store.items
+        case .text: base = store.textItems
+        case .images: base = store.imageItems
+        case .files: base = store.fileItems
+        case .pinned: base = store.pinnedItems
+        case .settings: base = []
+        }
+        if state.searchText.isEmpty { return base }
+        return base.filter { item in
+            switch item.type {
+            case .text:
+                return item.textContent?.localizedCaseInsensitiveContains(state.searchText) ?? false
+            case .image:
+                return "screenshot".localizedCaseInsensitiveContains(state.searchText)
+            case .file:
+                return item.fileName?.localizedCaseInsensitiveContains(state.searchText) ?? false
+            }
         }
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Tab bar
-            HStack(spacing: 0) {
-                ForEach(PastePickerTab.allCases, id: \.self) { tab in
-                    let isSelected = selectedTab == tab
-                    Button(action: {
-                        selectedTab = tab
-                        selectedIndex = 0
-                    }) {
+        Group {
+            if state.isDragMode {
+                dragModeContent
+            } else {
+                normalContent
+            }
+        }
+        .frame(width: 480)
+        .background(Color.black.opacity(0.9))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(isDragTargeted ? Color.green.opacity(0.6) : Color.primary.opacity(0.08), lineWidth: isDragTargeted ? 2.5 : 1)
+        )
+        .shadow(color: .black.opacity(0.4), radius: 40, y: 12)
+        .onReceive(NotificationCenter.default.publisher(for: .dragEnteredKlipt)) { _ in
+            withAnimation(.easeOut(duration: 0.15)) { isDragTargeted = true }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .dragExitedKlipt)) { _ in
+            withAnimation(.easeOut(duration: 0.15)) { isDragTargeted = false }
+        }
+        .alert("Clear all clips?", isPresented: $showClearConfirmation) {
+            Button("Clear Unpinned", role: .destructive) { store.clearUnpinned() }
+            Button("Clear Everything", role: .destructive) { store.clearAll() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Pinned items can be kept or removed too.")
+        }
+    }
+
+    // MARK: - Top bar
+
+    private var topBar: some View {
+        HStack(spacing: 0) {
+            // Tabs
+            HStack(spacing: 4) {
+                ForEach(KliptTab.allCases, id: \.self) { tab in
+                    let isSelected = state.selectedTab == tab
+                    HStack(spacing: 4) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 12))
-                            .foregroundStyle(isSelected ? tab.color : .secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(isSelected ? tab.color.opacity(0.12) : Color.clear)
+                            .font(.system(size: 13, weight: .medium))
+                        if isSelected && tab != .settings {
+                            Text(tab == .all ? "All" : "\(countForTab(tab))")
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        }
+                    }
+                    .foregroundStyle(.primary.opacity(isSelected ? 1 : 0.35))
+                    .padding(.horizontal, isSelected ? 11 : 8)
+                    .padding(.vertical, 6)
+                    .background(isSelected ? tab.color.opacity(tab == .settings ? 0.15 : 0.2) : Color.primary.opacity(0.04))
+                    .clipShape(Capsule())
+                    .contentShape(Capsule())
+                    .onTapGesture {
+                        state.selectedTab = tab
+                        state.selectedIndex = 0
+                    }
+                }
+            }
+
+            Spacer()
+
+            // Pin button
+            if state.selectedTab != .settings, !items.isEmpty {
+                let item = items[min(state.selectedIndex, items.count - 1)]
+                Button(action: { onTogglePin?() }) {
+                    Image(systemName: item.isPinned ? "pin.slash.fill" : "pin.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(item.isPinned ? .orange : .secondary)
+                        .frame(width: 30, height: 30)
+                        .background(item.isPinned ? Color.orange.opacity(0.12) : Color.primary.opacity(0.05))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+    }
+
+    // MARK: - Compact content (single item preview)
+
+    private var compactContent: some View {
+        Group {
+            if items.isEmpty {
+                emptyState
+            } else {
+                let item = items[min(state.selectedIndex, items.count - 1)]
+                VStack(spacing: 0) {
+                    itemPreview(item)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 14)
+                        .overlay(DragSourceView(item: item, onSelect: { onConfirm?() }))
+
+                    // Centered counter
+                    HStack(spacing: 10) {
+                        Image(systemName: "chevron.up")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.primary.opacity(0.2))
+                        Text("\(state.selectedIndex + 1)")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundStyle(item.type.color)
+                        +
+                        Text(" / \(items.count)")
+                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                            .foregroundStyle(.primary.opacity(0.35))
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.primary.opacity(0.2))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 10)
+                }
+            }
+        }
+    }
+
+    // MARK: - Expanded content (scrollable list)
+
+    private var expandedContent: some View {
+        Group {
+            // Search bar
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.primary.opacity(0.3))
+                TextField("Search...", text: $state.searchText)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 14))
+                    .foregroundStyle(.primary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .background(Color.primary.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .padding(.horizontal, 12)
+            .padding(.bottom, 6)
+
+            if items.isEmpty {
+                emptyState
+            } else {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 2) {
+                            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                                ClipItemView(
+                                    item: item,
+                                    isKeyboardSelected: index == state.selectedIndex,
+                                    onSelect: { selectAndPaste(item) },
+                                    onPin: { store.togglePin(item) },
+                                    onDelete: { store.remove(item) }
+                                )
+                                .id(item.id)
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                    }
+                    .onChange(of: state.selectedIndex) { _, newIndex in
+                        if newIndex >= 0 && newIndex < items.count {
+                            withAnimation(.easeOut(duration: 0.15)) {
+                                proxy.scrollTo(items[newIndex].id, anchor: .center)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Bottom bar
+
+    private var bottomBar: some View {
+        HStack {
+            if state.selectedTab != .settings {
+                // Expand/collapse button
+                Button(action: { onToggleExpand?() }) {
+                    HStack(spacing: 5) {
+                        Image(systemName: state.isExpanded ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                            .font(.system(size: 12, weight: .medium))
+                        Text(state.isExpanded ? "Compact" : "Expand")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    .foregroundStyle(.primary.opacity(0.35))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.primary.opacity(0.05))
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+
+                if state.isExpanded {
+                    Button(action: { showClearConfirmation = true }) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 28, height: 28)
+                            .background(Color.primary.opacity(0.05))
+                            .clipShape(RoundedRectangle(cornerRadius: 7))
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 6)
-            .padding(.top, 6)
 
-            Divider()
-                .padding(.top, 4)
+            Spacer()
 
-            // Current item preview
-            if items.isEmpty {
-                VStack(spacing: 6) {
-                    Spacer()
-                    Text("Nothing here")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity)
-            } else {
-                let item = items[min(selectedIndex, items.count - 1)]
-                VStack(spacing: 6) {
-                    itemPreview(item)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(.horizontal, 12)
-                        .padding(.top, 8)
-
-                    // Navigation indicator
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrowtriangle.up.fill")
-                            .font(.system(size: 7))
-                            .foregroundStyle(.tertiary)
-                        Text("\(selectedIndex + 1) of \(items.count)")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
-                            .foregroundStyle(.secondary)
-                        Image(systemName: "arrowtriangle.down.fill")
-                            .font(.system(size: 7))
-                            .foregroundStyle(.tertiary)
+            // Hints
+            if state.selectedTab != .settings {
+                HStack(spacing: 12) {
+                    shortcutHint(key: "\u{2191}\u{2193}", label: "browse")
+                    if !state.isExpanded {
+                        shortcutHint(key: "\u{23CE}", label: "paste")
                     }
-                    .padding(.bottom, 8)
+                    shortcutHint(key: "tab", label: state.isExpanded ? "compact" : "expand")
                 }
             }
-
-            Divider()
-
-            // Hint
-            HStack(spacing: 12) {
-                shortcutHint(keys: ["arrow-up", "arrow-down"], label: "navigate")
-                shortcutHint(keys: ["return"], label: "paste")
-                shortcutHint(keys: ["esc"], label: "cancel")
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
         }
-        .frame(width: 320, height: 220)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.35), radius: 20, y: 8)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .background(Color.primary.opacity(0.03))
+    }
+
+    // MARK: - Normal content
+
+    private var normalContent: some View {
+        VStack(spacing: 0) {
+            topBar
+
+            if state.selectedTab == .settings {
+                SettingsView(settings: settings, onShortcutsChanged: { onShortcutsChanged?() })
+            } else if state.isExpanded {
+                expandedContent
+            } else {
+                compactContent
+            }
+
+            bottomBar
+        }
+    }
+
+    // MARK: - Drag mode content
+
+    private var dragModeContent: some View {
+        VStack(spacing: 16) {
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill((isDragTargeted ? Color.green : Color.primary).opacity(0.06))
+                    .frame(width: 120, height: 120)
+                Circle()
+                    .fill((isDragTargeted ? Color.green : Color.primary).opacity(0.04))
+                    .frame(width: 160, height: 160)
+                Image(systemName: isDragTargeted ? "plus.circle.fill" : "tray.and.arrow.down.fill")
+                    .font(.system(size: 52, weight: .medium))
+                    .foregroundStyle(isDragTargeted ? .green : .secondary)
+                    .scaleEffect(isDragTargeted ? 1.15 : 1.0)
+                    .animation(.easeInOut(duration: 0.15), value: isDragTargeted)
+            }
+
+            VStack(spacing: 6) {
+                Text(isDragTargeted ? "Drop it!" : "Drop to Klipt")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(isDragTargeted ? .green : .primary)
+                Text(isDragTargeted ? "Release to save to your clipboard" : "Drag files, images, or text here")
+                    .font(.system(size: 14))
+                    .foregroundStyle(isDragTargeted ? .green.opacity(0.7) : .secondary)
+            }
+
+            Spacer()
+        }
+        .frame(height: 340)
+    }
+
+    // MARK: - Helpers
+
+    private var emptyState: some View {
+        VStack(spacing: 10) {
+            Spacer()
+            Image(systemName: state.selectedTab == .pinned ? "pin.slash" : "tray")
+                .font(.system(size: 28, weight: .light))
+                .foregroundStyle(.primary.opacity(0.15))
+            Text(state.selectedTab == .pinned ? "No pinned items" : "Nothing here")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(.primary.opacity(0.3))
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
     private func itemPreview(_ item: ClipItem) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 14) {
             Image(systemName: item.type.icon)
-                .font(.system(size: 14))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(item.type.color)
-                .frame(width: 28, height: 28)
+                .frame(width: 44, height: 44)
                 .background(item.type.color.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 5) {
                 switch item.type {
                 case .text:
                     Text(item.textContent ?? "")
-                        .font(.system(.body, design: .monospaced))
-                        .lineLimit(3)
-                        .foregroundStyle(.primary)
+                        .font(.system(size: 15))
+                        .lineLimit(4)
+                        .foregroundStyle(.primary.opacity(0.85))
 
                 case .image:
                     if let image = item.nsImage {
                         Image(nsImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(maxHeight: 80)
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                            .frame(maxHeight: 120)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
 
                 case .file:
-                    HStack(spacing: 6) {
+                    HStack(spacing: 10) {
                         if let url = item.resolvedFileURL {
                             Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
                                 .resizable()
-                                .frame(width: 28, height: 28)
+                                .frame(width: 32, height: 32)
                         }
                         Text(item.displayTitle)
+                            .font(.system(size: 15, weight: .medium))
                             .lineLimit(2)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.primary.opacity(0.85))
                     }
                 }
 
                 HStack(spacing: 6) {
                     Text(item.createdAt.relativeString)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundStyle(.secondary)
                     if item.isPinned {
                         Image(systemName: "pin.fill")
-                            .font(.system(size: 8))
-                            .foregroundStyle(.orange)
+                            .font(.system(size: 10))
+                            .foregroundStyle(.orange.opacity(0.8))
                     }
                 }
             }
@@ -177,74 +435,60 @@ struct PastePickerView: View {
         }
     }
 
-    private func shortcutHint(keys: [String], label: String) -> some View {
-        HStack(spacing: 3) {
-            ForEach(keys, id: \.self) { key in
-                let display: String = {
-                    switch key {
-                    case "arrow-up": return "\u{2191}"
-                    case "arrow-down": return "\u{2193}"
-                    case "return": return "\u{23CE}"
-                    case "esc": return "esc"
-                    default: return key
-                    }
-                }()
-                Text(display)
-                    .font(.system(size: 9, weight: .medium, design: .rounded))
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 2)
-                    .background(Color.secondary.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 3))
-            }
+    private func shortcutHint(key: String, label: String) -> some View {
+        HStack(spacing: 4) {
+            Text(key)
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .foregroundStyle(.primary.opacity(0.3))
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Color.primary.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
             Text(label)
-                .font(.system(size: 9))
-                .foregroundStyle(.tertiary)
+                .font(.system(size: 10))
+                .foregroundStyle(.primary.opacity(0.2))
         }
     }
 
-    // Called from the hosting panel's key handler
-    func moveUp() {
-        guard !items.isEmpty else { return }
-        selectedIndex = max(0, selectedIndex - 1)
+    private func countForTab(_ tab: KliptTab) -> Int {
+        switch tab {
+        case .all: return store.items.count
+        case .text: return store.textItems.count
+        case .images: return store.imageItems.count
+        case .files: return store.fileItems.count
+        case .pinned: return store.pinnedItems.count
+        case .settings: return 0
+        }
     }
 
-    func moveDown() {
-        guard !items.isEmpty else { return }
-        selectedIndex = min(items.count - 1, selectedIndex + 1)
-    }
-
-    func confirmSelection() {
-        guard !items.isEmpty else { return }
-        let item = items[min(selectedIndex, items.count - 1)]
+    private func selectAndPaste(_ item: ClipItem) {
         clipboardMonitor.copyToClipboard(item)
         store.moveToTop(item)
-        NotificationCenter.default.post(name: .hidePastePicker, object: nil)
-        // Simulate CMD+V to paste into the active app
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        NotificationCenter.default.post(name: .hideKlipt, object: nil)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             simulatePaste()
         }
-    }
-
-    func cancel() {
-        NotificationCenter.default.post(name: .hidePastePicker, object: nil)
     }
 }
 
 extension Notification.Name {
-    static let hidePastePicker = Notification.Name("hidePastePicker")
-    static let showPastePicker = Notification.Name("showPastePicker")
+    static let hideKlipt = Notification.Name("hideKlipt")
+    static let showKlipt = Notification.Name("showKlipt")
+    static let itemAdded = Notification.Name("kliptItemAdded")
+    static let clearUnpinned = Notification.Name("kliptClearUnpinned")
+    static let dragEnteredKlipt = Notification.Name("dragEnteredKlipt")
+    static let dragExitedKlipt = Notification.Name("dragExitedKlipt")
 }
 
-/// Simulate a CMD+V keypress to paste into the frontmost app
 func simulatePaste() {
-    let source = CGEventSource(stateID: .combinedSessionState)
+    guard let frontApp = NSWorkspace.shared.frontmostApplication else { return }
+    let pid = frontApp.processIdentifier
 
-    let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: true) // V key
+    let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: 0x09, keyDown: true)
     keyDown?.flags = .maskCommand
+    keyDown?.postToPid(pid)
 
-    let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: false)
+    let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: 0x09, keyDown: false)
     keyUp?.flags = .maskCommand
-
-    keyDown?.post(tap: .cghidEventTap)
-    keyUp?.post(tap: .cghidEventTap)
+    keyUp?.postToPid(pid)
 }

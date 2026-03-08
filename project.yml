@@ -14,12 +14,19 @@ settings:
     SWIFT_VERSION: "5.9"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
 
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
+
 targets:
   Klipt:
     type: application
     platform: macOS
     sources:
       - path: Klipt
+    dependencies:
+      - package: Sparkle
     settings:
       base:
         INFOPLIST_FILE: Klipt/Resources/Info.plist

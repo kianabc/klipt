@@ -22,5 +22,9 @@
     <true/>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright 2026 Klipt. All rights reserved.</string>
+    <key>SUFeedURL</key>
+    <string>https://klipt.app/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>hu0z+OZVy8R4dk7/eVoBpqsqf2p/Y0BSlLbDkehE6sY=</string>
 </dict>
 </plist>

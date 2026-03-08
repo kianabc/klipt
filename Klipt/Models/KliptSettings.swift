@@ -9,12 +9,12 @@ class KliptSettings {
         didSet { UserDefaults.standard.set(expirationDays, forKey: "klipt_expirationDays") }
     }
 
-    var toggleShortcutKeyCode: UInt32 {
-        didSet { UserDefaults.standard.set(toggleShortcutKeyCode, forKey: "klipt_toggleKeyCode") }
+    var shortcutKeyCode: UInt32 {
+        didSet { UserDefaults.standard.set(shortcutKeyCode, forKey: "klipt_shortcutKeyCode") }
     }
 
-    var toggleShortcutModifiers: UInt32 {
-        didSet { UserDefaults.standard.set(toggleShortcutModifiers, forKey: "klipt_toggleModifiers") }
+    var shortcutModifiers: UInt32 {
+        didSet { UserDefaults.standard.set(shortcutModifiers, forKey: "klipt_shortcutModifiers") }
     }
 
     init() {
@@ -26,17 +26,18 @@ class KliptSettings {
             self.expirationDays = 30
         }
 
-        if defaults.object(forKey: "klipt_toggleKeyCode") != nil {
-            self.toggleShortcutKeyCode = UInt32(defaults.integer(forKey: "klipt_toggleKeyCode"))
-            self.toggleShortcutModifiers = UInt32(defaults.integer(forKey: "klipt_toggleModifiers"))
+        if defaults.object(forKey: "klipt_shortcutKeyCode") != nil {
+            self.shortcutKeyCode = UInt32(defaults.integer(forKey: "klipt_shortcutKeyCode"))
+            self.shortcutModifiers = UInt32(defaults.integer(forKey: "klipt_shortcutModifiers"))
         } else {
-            self.toggleShortcutKeyCode = UInt32(kVK_ANSI_K)
-            self.toggleShortcutModifiers = UInt32(cmdKey | shiftKey)
+            // Default: Cmd+Opt+V
+            self.shortcutKeyCode = UInt32(kVK_ANSI_V)
+            self.shortcutModifiers = UInt32(cmdKey | optionKey)
         }
     }
 
-    var toggleShortcutDisplayString: String {
-        modifierString(toggleShortcutModifiers) + keyString(toggleShortcutKeyCode)
+    var shortcutDisplayString: String {
+        modifierString(shortcutModifiers) + keyString(shortcutKeyCode)
     }
 
     private func modifierString(_ mods: UInt32) -> String {

@@ -13,53 +13,53 @@ struct KliptApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    private var panel: NSPanel?
-    private var pastePickerPanel: PastePickerPanel?
+    private var kliptPanel: KliptPanel?
+    private var onboardingWindow: OnboardingWindow?
     private var store = ClipboardStore()
     private var settings = KliptSettings.shared
     private var clipboardMonitor: ClipboardMonitor!
     private var screenshotService: ScreenshotService!
-    private var dragTrayWindow: DragTrayWindow!
+    private var dragMonitor: DragMonitor!
     private var statusItem: NSStatusItem?
-    private var isVisible = false
     private var flashTimer: Timer?
     private var expirationTimer: Timer?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         clipboardMonitor = ClipboardMonitor(store: store)
         screenshotService = ScreenshotService(store: store)
-        dragTrayWindow = DragTrayWindow(store: store)
 
+        _ = UpdaterService.shared // Initialize Sparkle updater
         setupStatusBar()
         setupPanel()
-        setupPastePicker()
         setupHotkeys()
+        setupDragMonitor()
         clipboardMonitor.start()
         screenshotService.start()
-        dragTrayWindow.startMonitoring()
 
-        // Purge expired items once per hour
         expirationTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
             self?.store.purgeExpired()
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(hidePanel), name: .hideKliptPanel, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(togglePanel), name: .toggleKliptPanel, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(hideKlipt), name: .hideKlipt, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(onItemAdded), name: .itemAdded, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(hidePastePicker), name: .hidePastePicker, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(clearUnpinned), name: .clearUnpinned, object: nil)
+
+        showOnboardingIfNeeded()
     }
 
     private func setupStatusBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "clipboard", accessibilityDescription: "Klipt")
-            button.action = #selector(togglePanel)
+            let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+            let image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Klipt")?.withSymbolConfiguration(config)
+            button.image = image
+            button.action = #selector(toggleKlipt)
             button.target = self
         }
     }
 
     private func setupPanel() {
-        let contentView = KliptPanel(
+        kliptPanel = KliptPanel(
             store: store,
             clipboardMonitor: clipboardMonitor,
             settings: settings,
@@ -67,101 +67,66 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 HotkeyManager.shared.reregister()
             }
         )
-        .overlay(DropTargetView(store: store))
-
-        let hostingView = NSHostingView(rootView: contentView)
-        hostingView.frame = NSRect(x: 0, y: 0, width: 380, height: 520)
-
-        let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 380, height: 520),
-            styleMask: [.nonactivatingPanel, .titled, .closable, .fullSizeContentView],
-            backing: .buffered,
-            defer: false
-        )
-        panel.contentView = hostingView
-        panel.isFloatingPanel = true
-        panel.level = .floating
-        panel.titleVisibility = .hidden
-        panel.titlebarAppearsTransparent = true
-        panel.isMovableByWindowBackground = true
-        panel.animationBehavior = .utilityWindow
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        panel.isOpaque = false
-        panel.backgroundColor = .clear
-        panel.hidesOnDeactivate = false
-
-        self.panel = panel
     }
 
-    private func setupPastePicker() {
-        pastePickerPanel = PastePickerPanel(store: store, clipboardMonitor: clipboardMonitor)
+    private func setupDragMonitor() {
+        guard let panel = kliptPanel else { return }
+        dragMonitor = DragMonitor(panel: panel)
+        dragMonitor.startMonitoring()
     }
 
     private func setupHotkeys() {
         HotkeyManager.shared.register(
             onToggle: { [weak self] in
                 DispatchQueue.main.async {
-                    self?.togglePanel()
-                }
-            },
-            onPastePicker: { [weak self] in
-                DispatchQueue.main.async {
-                    self?.showPastePicker()
+                    self?.toggleKlipt()
                 }
             }
         )
     }
 
-    @objc func togglePanel() {
-        if isVisible {
-            hidePanel()
+    @objc func toggleKlipt() {
+        guard let panel = kliptPanel else { return }
+        if panel.isVisible {
+            panel.dismiss()
         } else {
-            showPanel()
+            panel.showCentered()
         }
     }
 
-    private func showPanel() {
-        guard let panel = panel else { return }
-        if let screenFrame = NSScreen.main?.visibleFrame {
-            let x = screenFrame.maxX - panel.frame.width - 16
-            let y = screenFrame.maxY - panel.frame.height - 8
-            panel.setFrameOrigin(NSPoint(x: x, y: y))
-        }
-        panel.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        isVisible = true
+    @objc func hideKlipt() {
+        kliptPanel?.dismiss()
     }
 
-    @objc func hidePanel() {
-        flashTimer?.invalidate()
-        flashTimer = nil
-        panel?.orderOut(nil)
-        isVisible = false
-    }
-
-    private func showPastePicker() {
-        pastePickerPanel?.showCentered()
-    }
-
-    @objc func hidePastePicker() {
-        pastePickerPanel?.orderOut(nil)
+    @objc func clearUnpinned() {
+        store.clearUnpinned()
     }
 
     @objc func onItemAdded() {
         flashTimer?.invalidate()
 
-        if !isVisible {
-            showPanel()
+        if let panel = kliptPanel, !panel.isVisible {
+            panel.showCentered()
             flashTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
-                self?.hidePanel()
+                self?.hideKlipt()
             }
         }
+    }
+
+    private func showOnboardingIfNeeded() {
+        let key = "hasCompletedOnboarding"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        let window = OnboardingWindow {
+            UserDefaults.standard.set(true, forKey: key)
+        }
+        window.showCentered()
+        self.onboardingWindow = window
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         clipboardMonitor.stop()
         screenshotService.stop()
-        dragTrayWindow.stopMonitoring()
+        dragMonitor.stopMonitoring()
         HotkeyManager.shared.unregister()
         expirationTimer?.invalidate()
     }

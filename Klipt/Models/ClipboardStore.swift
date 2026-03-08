@@ -78,7 +78,7 @@ class ClipboardStore {
     }
 
     func purgeExpired() {
-        let days = KliptSettings.shared.expirationDays
+        let days = LicenseManager.shared.isLicensed ? KliptSettings.shared.expirationDays : 1
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         items.removeAll { !$0.isPinned && $0.createdAt < cutoff }
         save()

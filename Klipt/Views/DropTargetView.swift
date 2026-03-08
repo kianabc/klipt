@@ -14,6 +14,8 @@ struct DropTargetView: View {
             .background(isTargeted ? Color.accentColor.opacity(0.05) : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .onDrop(of: [.fileURL, .image, .plainText], isTargeted: $isTargeted) { providers in
+                // Ignore drops that originated from Klipt itself (drag-cancel / drag-back)
+                guard !DragSourceNSView.isDraggingFromKlipt else { return false }
                 handleDrop(providers: providers)
                 return true
             }

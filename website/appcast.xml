@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Klipt Updates</title>
+        <link>https://klipt.app/appcast.xml</link>
+        <description>Updates for Klipt</description>
+        <language>en</language>
+        <item>
+            <title>Klipt 1.0.0</title>
+            <pubDate>Sat, 08 Mar 2026 00:00:00 +0000</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>Initial Release</h2>
+                <ul>
+                    <li>Clipboard history for text, images, screenshots, and files</li>
+                    <li>Quick paste with keyboard shortcut</li>
+                    <li>Compact and expanded view modes</li>
+                    <li>Pin important items</li>
+                    <li>Preview anything with Space</li>
+                    <li>Drag and drop support</li>
+                    <li>Automatic screenshot capture</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/kianabc/klipt/releases/download/v1.0.0/Klipt.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="7zlLfBcKfhx6Z7En/SRUT99y4kaB3dGAfTobOv2SXvwjm7xbACF6S0dDQdE9M0FPep577A4WHcTKqGztMkkEBA=="
+                       length="1721652"/>
+        </item>
+    </channel>
+</rss>
