@@ -14,9 +14,12 @@ class KliptPanel: NSPanel {
     private var ignoreClickOutside = false
     var openedForDrag = false
 
-    private let compactHeight: CGFloat = 340
+    private let minCompactHeight: CGFloat = 340
+    private let maxCompactHeight: CGFloat = 680
     private let settingsHeight: CGFloat = 740
     private let panelWidth: CGFloat = 480
+    /// Chrome around the image: top bar (~55) + padding (16) + timestamp (~25) + counter (~35) + bottom bar (~45)
+    private let chromeHeight: CGFloat = 176
 
     override var canBecomeKey: Bool { true }
 
@@ -60,8 +63,13 @@ class KliptPanel: NSPanel {
 
         self.contentView = container
 
+        kliptState.onSelectionChanged = { [weak self] in
+            guard let self = self, self.isVisible, !self.kliptState.isExpanded, self.kliptState.selectedTab != .settings else { return }
+            self.resizePanel(animated: true)
+        }
+
         kliptState.onTabChanged = { [weak self] tab in
-            guard let self = self else { return }
+            guard let self = self, self.isVisible else { return }
             if tab == .settings {
                 self.wasExpandedBeforeSettings = self.kliptState.isExpanded
                 self.kliptState.isExpanded = false
@@ -87,7 +95,7 @@ class KliptPanel: NSPanel {
 
     func showCentered() {
         openedForDrag = false
-        kliptState.reset()
+        kliptState.restore()
         kliptState.isDragMode = false
         positionPanel()
         makeKeyAndOrderFront(nil)
@@ -103,9 +111,30 @@ class KliptPanel: NSPanel {
         orderFront(nil)
     }
 
+    func resetToLatest() {
+        kliptState.reset()
+        resizePanel(animated: true)
+    }
+
+    func showSettings() {
+        kliptState.selectedTab = .settings
+        kliptState.isDragMode = false
+        positionPanel()
+        makeKeyAndOrderFront(nil)
+        startClickOutsideMonitor()
+    }
+
     func dismiss() {
         stopClickOutsideMonitor()
+        savePosition()
         orderOut(nil)
+    }
+
+    private func savePosition() {
+        // Save X and top edge (origin.y + height) so position is stable regardless of panel height
+        UserDefaults.standard.set(frame.origin.x, forKey: "klipt_windowX")
+        UserDefaults.standard.set(frame.origin.y + frame.size.height, forKey: "klipt_windowTop")
+        UserDefaults.standard.set(true, forKey: "klipt_hasPosition")
     }
 
     func toggleExpand() {
@@ -126,25 +155,68 @@ class KliptPanel: NSPanel {
         if kliptState.selectedTab == .settings {
             return settingsHeight
         }
-        return kliptState.isExpanded ? expandedHeight() : compactHeight
+        if kliptState.isExpanded {
+            return expandedHeight()
+        }
+        return minCompactHeightForCurrentItem()
+    }
+
+    private func minCompactHeightForCurrentItem() -> CGFloat {
+        let items = currentItems()
+        guard !items.isEmpty else { return minCompactHeight }
+        let item = items[min(kliptState.selectedIndex, items.count - 1)]
+
+        if item.type == .image, let image = item.nsImage, image.size.height > 0 {
+            let availableWidth = panelWidth - 20
+            let aspectRatio = image.size.width / image.size.height
+            let imageHeight = availableWidth / aspectRatio
+            let totalHeight = imageHeight + chromeHeight
+            return min(max(totalHeight, minCompactHeight), maxCompactHeight)
+        }
+
+        if item.type == .file {
+            // Files get a taller panel to show the thumbnail preview + filename
+            return min(minCompactHeight + 200, maxCompactHeight)
+        }
+
+        return minCompactHeight
     }
 
     private func positionPanel() {
         guard let screen = NSScreen.main else { return }
         let screenFrame = screen.visibleFrame
         let height = currentHeight()
-        let x = screenFrame.midX - panelWidth / 2
-        let y = screenFrame.midY - height / 2
+
+        let x: CGFloat
+        let y: CGFloat
+
+        if UserDefaults.standard.bool(forKey: "klipt_hasPosition") {
+            let savedX = UserDefaults.standard.double(forKey: "klipt_windowX")
+            let savedTop = UserDefaults.standard.double(forKey: "klipt_windowTop")
+
+            // Validate saved position is within visible screen bounds
+            if screenFrame.contains(NSPoint(x: savedX + panelWidth / 2, y: savedTop - height / 2)) {
+                x = savedX
+                y = savedTop - height
+            } else {
+                x = screenFrame.midX - panelWidth / 2
+                y = screenFrame.midY - height / 2
+            }
+        } else {
+            x = screenFrame.midX - panelWidth / 2
+            y = screenFrame.midY - height / 2
+        }
+
         setFrame(NSRect(x: x, y: y, width: panelWidth, height: height), display: true)
         hostingView?.frame = NSRect(x: 0, y: 0, width: panelWidth, height: height)
     }
 
     private func resizePanel(animated: Bool) {
-        guard let screen = NSScreen.main else { return }
-        let screenFrame = screen.visibleFrame
         let height = currentHeight()
-        let x = screenFrame.midX - panelWidth / 2
-        let y = screenFrame.midY - height / 2
+        // Keep current X and top edge, grow/shrink downward
+        let topEdge = frame.origin.y + frame.size.height
+        let x = frame.origin.x
+        let y = topEdge - height
         let newFrame = NSRect(x: x, y: y, width: panelWidth, height: height)
 
         if animated {
@@ -185,6 +257,8 @@ class KliptPanel: NSPanel {
             togglePin()
         case 48: // Tab — toggle expand
             toggleExpand()
+        case 51: // Delete — remove item
+            deleteSelected()
         default:
             super.keyDown(with: event)
         }
@@ -235,6 +309,18 @@ class KliptPanel: NSPanel {
         guard !items.isEmpty else { return }
         let item = items[min(kliptState.selectedIndex, items.count - 1)]
         store.togglePin(item)
+    }
+
+    private func deleteSelected() {
+        let items = currentItems()
+        guard !items.isEmpty else { return }
+        let item = items[min(kliptState.selectedIndex, items.count - 1)]
+        store.remove(item)
+        // Adjust index if needed
+        let newItems = currentItems()
+        if kliptState.selectedIndex >= newItems.count {
+            kliptState.selectedIndex = max(0, newItems.count - 1)
+        }
     }
 
     private func setupPreviewNavigation() {

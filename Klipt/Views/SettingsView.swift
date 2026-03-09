@@ -187,6 +187,21 @@ struct SettingsView: View {
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundStyle(.blue.opacity(0.7))
                         }
+                        Divider().opacity(0.1)
+                        Button(action: {
+                            if let url = URL(string: "https://klipt.app/changelog") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .font(.system(size: 11))
+                                Text("View Changelog")
+                                    .font(.system(size: 12, weight: .medium))
+                            }
+                            .foregroundStyle(.blue.opacity(0.7))
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }

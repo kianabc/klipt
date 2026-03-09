@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import QuickLookThumbnailing
 
 enum KliptTab: String, CaseIterable {
     case all = "All"
@@ -35,19 +36,48 @@ enum KliptTab: String, CaseIterable {
 @Observable
 class KliptState {
     var selectedTab: KliptTab = .all {
-        didSet { onTabChanged?(selectedTab) }
+        didSet {
+            onTabChanged?(selectedTab)
+            if selectedTab != .settings {
+                UserDefaults.standard.set(selectedTab.rawValue, forKey: "klipt_lastTab")
+            }
+        }
     }
-    var selectedIndex: Int = 0
+    var selectedIndex: Int = 0 {
+        didSet {
+            UserDefaults.standard.set(selectedIndex, forKey: "klipt_lastIndex")
+            onSelectionChanged?()
+        }
+    }
     var isExpanded: Bool = false
     var searchText: String = ""
     var isDragMode: Bool = false
     var onTabChanged: ((KliptTab) -> Void)?
+    var onSelectionChanged: (() -> Void)?
 
+    /// Full reset — called when a new item is added
     func reset() {
         selectedTab = .all
         selectedIndex = 0
         isExpanded = false
         searchText = ""
+        isDragMode = false
+        UserDefaults.standard.set(KliptTab.all.rawValue, forKey: "klipt_lastTab")
+        UserDefaults.standard.set(0, forKey: "klipt_lastIndex")
+    }
+
+    /// Restore last state — called when reopening the panel
+    func restore() {
+        if let saved = UserDefaults.standard.string(forKey: "klipt_lastTab"),
+           let tab = KliptTab(rawValue: saved), tab != .settings {
+            selectedTab = tab
+        } else {
+            selectedTab = .all
+        }
+        selectedIndex = UserDefaults.standard.integer(forKey: "klipt_lastIndex")
+        isExpanded = false
+        searchText = ""
+        isDragMode = false
     }
 }
 
@@ -134,7 +164,7 @@ struct KliptMainView: View {
                                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                         }
                     }
-                    .foregroundStyle(.primary.opacity(isSelected ? 1 : 0.35))
+                    .foregroundStyle(isSelected ? tab.color : tab.color.opacity(0.4))
                     .padding(.horizontal, isSelected ? 11 : 8)
                     .padding(.vertical, 6)
                     .background(isSelected ? tab.color.opacity(tab == .settings ? 0.15 : 0.2) : Color.primary.opacity(0.04))
@@ -149,18 +179,36 @@ struct KliptMainView: View {
 
             Spacer()
 
-            // Pin button
+            // Pin & Delete buttons
             if state.selectedTab != .settings, !items.isEmpty {
                 let item = items[min(state.selectedIndex, items.count - 1)]
-                Button(action: { onTogglePin?() }) {
-                    Image(systemName: item.isPinned ? "pin.slash.fill" : "pin.fill")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(item.isPinned ? .orange : .secondary)
-                        .frame(width: 30, height: 30)
-                        .background(item.isPinned ? Color.orange.opacity(0.12) : Color.primary.opacity(0.05))
-                        .clipShape(Circle())
+                HStack(spacing: 6) {
+                    Button(action: { onTogglePin?() }) {
+                        Image(systemName: item.isPinned ? "pin.slash.fill" : "pin.fill")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(item.isPinned ? Color.green : Color.green.opacity(0.35))
+                            .frame(width: 30, height: 30)
+                            .background(item.isPinned ? Color.green.opacity(0.15) : Color.green.opacity(0.05))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(action: {
+                        store.remove(item)
+                        let newItems = self.items
+                        if state.selectedIndex >= newItems.count {
+                            state.selectedIndex = max(0, newItems.count - 1)
+                        }
+                    }) {
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.red.opacity(0.7))
+                            .frame(width: 30, height: 30)
+                            .background(Color.red.opacity(0.08))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
         .padding(.horizontal, 14)
@@ -179,8 +227,8 @@ struct KliptMainView: View {
                 VStack(spacing: 0) {
                     itemPreview(item)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 14)
+                        .padding(.horizontal, item.type == .text ? 20 : 10)
+                        .padding(.vertical, item.type == .text ? 14 : 8)
                         .overlay(DragSourceView(item: item, onSelect: { onConfirm?() }))
 
                     // Centered counter
@@ -381,57 +429,60 @@ struct KliptMainView: View {
 
     @ViewBuilder
     private func itemPreview(_ item: ClipItem) -> some View {
-        HStack(spacing: 14) {
-            Image(systemName: item.type.icon)
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(item.type.color)
-                .frame(width: 44, height: 44)
-                .background(item.type.color.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-
-            VStack(alignment: .leading, spacing: 5) {
-                switch item.type {
-                case .text:
+        VStack(alignment: .leading, spacing: 10) {
+            switch item.type {
+            case .text:
+                HStack(spacing: 14) {
+                    Image(systemName: item.type.icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(item.type.color)
+                        .frame(width: 44, height: 44)
+                        .background(item.type.color.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     Text(item.textContent ?? "")
                         .font(.system(size: 15))
                         .lineLimit(4)
                         .foregroundStyle(.primary.opacity(0.85))
-
-                case .image:
-                    if let image = item.nsImage {
-                        Image(nsImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxHeight: 120)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-
-                case .file:
-                    HStack(spacing: 10) {
-                        if let url = item.resolvedFileURL {
-                            Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
-                                .resizable()
-                                .frame(width: 32, height: 32)
-                        }
-                        Text(item.displayTitle)
-                            .font(.system(size: 15, weight: .medium))
-                            .lineLimit(2)
-                            .foregroundStyle(.primary.opacity(0.85))
-                    }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                HStack(spacing: 6) {
-                    Text(item.createdAt.relativeString)
-                        .font(.system(size: 12, design: .rounded))
-                        .foregroundStyle(.secondary)
-                    if item.isPinned {
-                        Image(systemName: "pin.fill")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.orange.opacity(0.8))
+            case .image:
+                if let image = item.nsImage {
+                    Image(nsImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+
+            case .file:
+                if let url = item.resolvedFileURL {
+                    FileThumbnailView(url: url, maxHeight: 240)
+                        .frame(maxWidth: .infinity)
+                }
+                HStack(spacing: 10) {
+                    if let url = item.resolvedFileURL {
+                        Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
+                            .resizable()
+                            .frame(width: 24, height: 24)
                     }
+                    Text(item.displayTitle)
+                        .font(.system(size: 14, weight: .medium))
+                        .lineLimit(1)
+                        .foregroundStyle(.primary.opacity(0.85))
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: 6) {
+                Text(item.createdAt.relativeString)
+                    .font(.system(size: 12, design: .rounded))
+                    .foregroundStyle(.secondary)
+                if item.isPinned {
+                    Image(systemName: "pin.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.orange.opacity(0.8))
+                }
+            }
         }
     }
 
@@ -467,6 +518,56 @@ struct KliptMainView: View {
         NotificationCenter.default.post(name: .hideKlipt, object: nil)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             simulatePaste()
+        }
+    }
+}
+
+// MARK: - File thumbnail view
+
+struct FileThumbnailView: View {
+    let url: URL
+    let maxHeight: CGFloat
+
+    @State private var thumbnail: NSImage?
+
+    var body: some View {
+        Group {
+            if let thumbnail = thumbnail {
+                Image(nsImage: thumbnail)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: maxHeight)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                // Fallback: large file icon
+                Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 80, height: 80)
+            }
+        }
+        .onAppear { generateThumbnail() }
+        .onChange(of: url) { _, _ in
+            thumbnail = nil
+            generateThumbnail()
+        }
+    }
+
+    private func generateThumbnail() {
+        let size = CGSize(width: 460, height: maxHeight)
+        let request = QLThumbnailGenerator.Request(
+            fileAt: url,
+            size: size,
+            scale: NSScreen.main?.backingScaleFactor ?? 2.0,
+            representationTypes: .thumbnail
+        )
+
+        QLThumbnailGenerator.shared.generateRepresentations(for: request) { rep, _, error in
+            DispatchQueue.main.async {
+                if let rep = rep {
+                    self.thumbnail = rep.nsImage
+                }
+            }
         }
     }
 }

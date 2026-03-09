@@ -53,9 +53,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
             let image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Klipt")?.withSymbolConfiguration(config)
             button.image = image
-            button.action = #selector(toggleKlipt)
-            button.target = self
         }
+
+        let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ","))
+        menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "Quit Klipt", action: #selector(quitApp), keyEquivalent: "q"))
+        statusItem?.menu = menu
+    }
+
+    @objc func openSettings() {
+        kliptPanel?.showSettings()
+    }
+
+    @objc func quitApp() {
+        NSApplication.shared.terminate(nil)
     }
 
     private func setupPanel() {
@@ -105,7 +117,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func onItemAdded() {
         flashTimer?.invalidate()
 
-        if let panel = kliptPanel, !panel.isVisible {
+        guard let panel = kliptPanel else { return }
+
+        if panel.isVisible {
+            // Panel already showing — just switch to latest item
+            panel.resetToLatest()
+        } else {
+            // Flash the panel briefly to show the new item
             panel.showCentered()
             flashTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
                 self?.hideKlipt()

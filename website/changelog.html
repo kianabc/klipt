@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klipt — Changelog</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --purple-light: #8b5cf6;
+            --bg: #0a0a0f;
+            --text: #f0f0f5;
+            --text-dim: #8888a0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+        }
+        .subtitle a {
+            color: var(--purple-light);
+            text-decoration: none;
+        }
+        .entry {
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 12px;
+        }
+        .entry-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .version-tag {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--purple-light);
+        }
+        .version-date {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .entry ul {
+            list-style: none;
+            padding: 0;
+        }
+        .entry li {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.6;
+            padding-left: 18px;
+            position: relative;
+        }
+        .entry li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 9px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--purple-light);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Changelog</h1>
+        <p class="subtitle"><a href="/">← klipt.app</a></p>
+
+        <div class="entry">
+            <div class="entry-header">
+                <span class="version-tag">v1.1.0</span>
+                <span class="version-date">March 9, 2026</span>
+            </div>
+            <ul>
+                <li>File previews — thumbnails for images, PDFs, documents, and more via QuickLook</li>
+                <li>Dynamic panel height — window resizes to fit image and file previews</li>
+                <li>Auto-switch to latest item when a new clip is added while panel is open</li>
+                <li>Menu bar menu with Settings and Quit options</li>
+                <li>Stable window positioning — panel remembers its position across sessions</li>
+                <li>Fixed false drag triggers when clicking browser tabs</li>
+                <li>Fixed window drifting to corner after expand/collapse</li>
+            </ul>
+        </div>
+
+        <div class="entry">
+            <div class="entry-header">
+                <span class="version-tag">v1.0.0</span>
+                <span class="version-date">March 8, 2026</span>
+            </div>
+            <ul>
+                <li>Initial release</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

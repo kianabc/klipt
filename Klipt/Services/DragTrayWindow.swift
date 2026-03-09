@@ -12,6 +12,8 @@ class DragMonitor {
 
     func startMonitoring() {
         var lastDragChangeCount = NSPasteboard(name: .drag).changeCount
+        var dragStartTime: Date?
+        var pendingShow = false
 
         dragMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDragged]) { [weak self] _ in
             guard let self = self, let panel = self.panel else { return }
@@ -28,13 +30,24 @@ class DragMonitor {
                 lastDragChangeCount = currentCount
                 let hasContent = dragPasteboard.types?.isEmpty == false
                 if hasContent {
-                    self.showTime = Date()
-                    panel.showForDrag()
+                    // Start a delay — only show if drag continues for 300ms
+                    dragStartTime = Date()
+                    pendingShow = true
                 }
+            }
+
+            // Show after sustained drag
+            if pendingShow, let start = dragStartTime,
+               Date().timeIntervalSince(start) > 0.1 {
+                pendingShow = false
+                self.showTime = Date()
+                panel.showForDrag()
             }
         }
 
         dragEndMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseUp]) { [weak self] _ in
+            pendingShow = false
+            dragStartTime = nil
             guard let self = self, let panel = self.panel else { return }
             guard panel.openedForDrag else { return }
 
