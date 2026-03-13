@@ -10,6 +10,8 @@ class ClipboardStore {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let kliptDir = appSupport.appendingPathComponent("Klipt", isDirectory: true)
         try? FileManager.default.createDirectory(at: kliptDir, withIntermediateDirectories: true)
+        // Restrict directory permissions to owner only
+        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: kliptDir.path)
         self.storageURL = kliptDir.appendingPathComponent("clips.json")
         load()
         purgeExpired()
@@ -39,6 +41,8 @@ class ClipboardStore {
         items.first
     }
 
+    private let maxItemsPerCategory = 100
+
     func add(_ item: ClipItem) {
         // Deduplicate text items
         if item.type == .text, let text = item.textContent {
@@ -46,7 +50,19 @@ class ClipboardStore {
         }
 
         items.insert(item, at: 0)
+        trimExcessItems(type: item.type)
         save()
+    }
+
+    /// Remove oldest unpinned items when a category exceeds the limit
+    private func trimExcessItems(type: ClipItemType) {
+        var categoryItems = items.enumerated().filter { $0.element.type == type }
+        let unpinned = categoryItems.filter { !$0.element.isPinned }
+        guard unpinned.count > maxItemsPerCategory else { return }
+        // Remove excess from the end (oldest)
+        let toRemove = unpinned.suffix(unpinned.count - maxItemsPerCategory)
+        let idsToRemove = Set(toRemove.map { $0.element.id })
+        items.removeAll { idsToRemove.contains($0.id) }
     }
 
     func remove(_ item: ClipItem) {
@@ -88,7 +104,9 @@ class ClipboardStore {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         guard let data = try? encoder.encode(items) else { return }
-        try? data.write(to: storageURL, options: .atomic)
+        try? data.write(to: storageURL, options: [.atomic, .completeFileProtection])
+        // Ensure file is owner-readable only
+        try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: storageURL.path)
     }
 
     private func load() {

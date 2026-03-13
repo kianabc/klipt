@@ -151,21 +151,21 @@ struct KliptMainView: View {
     // MARK: - Top bar
 
     private var topBar: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 8) {
             // Tabs
-            HStack(spacing: 4) {
+            HStack(spacing: 3) {
                 ForEach(KliptTab.allCases, id: \.self) { tab in
                     let isSelected = state.selectedTab == tab
-                    HStack(spacing: 4) {
+                    HStack(spacing: 3) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(size: 12, weight: .medium))
                         if isSelected && tab != .settings {
                             Text(tab == .all ? "All" : "\(countForTab(tab))")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
                         }
                     }
                     .foregroundStyle(isSelected ? tab.color : tab.color.opacity(0.4))
-                    .padding(.horizontal, isSelected ? 11 : 8)
+                    .padding(.horizontal, isSelected ? 9 : 7)
                     .padding(.vertical, 6)
                     .background(isSelected ? tab.color.opacity(tab == .settings ? 0.15 : 0.2) : Color.primary.opacity(0.04))
                     .clipShape(Capsule())
@@ -177,17 +177,17 @@ struct KliptMainView: View {
                 }
             }
 
-            Spacer()
+            Spacer(minLength: 4)
 
             // Pin & Delete buttons
             if state.selectedTab != .settings, !items.isEmpty {
                 let item = items[min(state.selectedIndex, items.count - 1)]
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
                     Button(action: { onTogglePin?() }) {
                         Image(systemName: item.isPinned ? "pin.slash.fill" : "pin.fill")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(item.isPinned ? Color.green : Color.green.opacity(0.35))
-                            .frame(width: 30, height: 30)
+                            .frame(width: 28, height: 28)
                             .background(item.isPinned ? Color.green.opacity(0.15) : Color.green.opacity(0.05))
                             .clipShape(Circle())
                     }
@@ -201,17 +201,18 @@ struct KliptMainView: View {
                         }
                     }) {
                         Image(systemName: "trash.fill")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(size: 11, weight: .semibold))
                             .foregroundStyle(.red.opacity(0.7))
-                            .frame(width: 30, height: 30)
+                            .frame(width: 28, height: 28)
                             .background(Color.red.opacity(0.08))
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
                 }
+                .fixedSize()
             }
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 12)
         .padding(.top, 12)
         .padding(.bottom, 8)
     }
@@ -230,6 +231,7 @@ struct KliptMainView: View {
                         .padding(.horizontal, item.type == .text ? 20 : 10)
                         .padding(.vertical, item.type == .text ? 14 : 8)
                         .overlay(DragSourceView(item: item, onSelect: { onConfirm?() }))
+                        .contextMenu { itemContextMenu(item) }
 
                     // Centered counter
                     HStack(spacing: 10) {
@@ -461,8 +463,8 @@ struct KliptMainView: View {
                         .frame(maxWidth: .infinity)
                 }
                 HStack(spacing: 10) {
-                    if let url = item.resolvedFileURL {
-                        Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
+                    if let icon = item.withSecurityScopedAccess({ NSWorkspace.shared.icon(forFile: $0.path) }) {
+                        Image(nsImage: icon)
                             .resizable()
                             .frame(width: 24, height: 24)
                     }
@@ -512,6 +514,60 @@ struct KliptMainView: View {
         }
     }
 
+    @ViewBuilder
+    private func itemContextMenu(_ item: ClipItem) -> some View {
+        if item.type == .file, let url = item.resolvedFileURL {
+            Button {
+                item.withSecurityScopedAccess { url in
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
+                }
+            } label: {
+                Label("Show in Finder", systemImage: "folder")
+            }
+        }
+        if item.type == .image {
+            if let url = item.imageFileURL {
+                Button {
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
+                } label: {
+                    Label("Show in Finder", systemImage: "folder")
+                }
+            }
+            if let data = item.resolvedImageData {
+                Button {
+                    let panel = NSSavePanel()
+                    panel.nameFieldStringValue = "Klipt_screenshot.png"
+                    panel.allowedContentTypes = [.png]
+                    if panel.runModal() == .OK, let saveURL = panel.url {
+                        try? data.write(to: saveURL)
+                        NSWorkspace.shared.activateFileViewerSelecting([saveURL])
+                    }
+                } label: {
+                    Label("Save Image to...", systemImage: "square.and.arrow.down")
+                }
+            }
+        }
+        Button {
+            clipboardMonitor.copyToClipboard(item)
+        } label: {
+            Label("Copy", systemImage: "doc.on.doc")
+        }
+        Divider()
+        Button {
+            onTogglePin?()
+        } label: {
+            Label(item.isPinned ? "Unpin" : "Pin", systemImage: item.isPinned ? "pin.slash" : "pin")
+        }
+        Button(role: .destructive) {
+            store.remove(item)
+            if state.selectedIndex >= items.count {
+                state.selectedIndex = max(0, items.count - 1)
+            }
+        } label: {
+            Label("Delete", systemImage: "trash")
+        }
+    }
+
     private func selectAndPaste(_ item: ClipItem) {
         clipboardMonitor.copyToClipboard(item)
         store.moveToTop(item)
@@ -554,6 +610,7 @@ struct FileThumbnailView: View {
     }
 
     private func generateThumbnail() {
+        let accessed = url.startAccessingSecurityScopedResource()
         let size = CGSize(width: 460, height: maxHeight)
         let request = QLThumbnailGenerator.Request(
             fileAt: url,
@@ -563,6 +620,7 @@ struct FileThumbnailView: View {
         )
 
         QLThumbnailGenerator.shared.generateRepresentations(for: request) { rep, _, error in
+            if accessed { self.url.stopAccessingSecurityScopedResource() }
             DispatchQueue.main.async {
                 if let rep = rep {
                     self.thumbnail = rep.nsImage
@@ -582,14 +640,13 @@ extension Notification.Name {
 }
 
 func simulatePaste() {
-    guard let frontApp = NSWorkspace.shared.frontmostApplication else { return }
-    let pid = frontApp.processIdentifier
+    guard AXIsProcessTrusted() else { return }
 
     let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: 0x09, keyDown: true)
     keyDown?.flags = .maskCommand
-    keyDown?.postToPid(pid)
+    keyDown?.post(tap: .cghidEventTap)
 
     let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: 0x09, keyDown: false)
     keyUp?.flags = .maskCommand
-    keyUp?.postToPid(pid)
+    keyUp?.post(tap: .cghidEventTap)
 }

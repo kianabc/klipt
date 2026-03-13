@@ -2,6 +2,7 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 
+
 struct ClipItemView: View {
     let item: ClipItem
     var isKeyboardSelected: Bool = false
@@ -65,6 +66,46 @@ struct ClipItemView: View {
         .animation(.easeOut(duration: 0.15), value: isHovered)
         .onHover { isHovered = $0 }
         .overlay(DragSourceView(item: item, onSelect: onSelect))
+        .contextMenu {
+            if item.type == .file {
+                Button {
+                    item.withSecurityScopedAccess { url in
+                        NSWorkspace.shared.activateFileViewerSelecting([url])
+                    }
+                } label: {
+                    Label("Show in Finder", systemImage: "folder")
+                }
+            }
+            if item.type == .image {
+                if let url = item.imageFileURL {
+                    Button {
+                        NSWorkspace.shared.activateFileViewerSelecting([url])
+                    } label: {
+                        Label("Show in Finder", systemImage: "folder")
+                    }
+                }
+                if let data = item.resolvedImageData {
+                    Button {
+                        let panel = NSSavePanel()
+                        panel.nameFieldStringValue = "Klipt_screenshot.png"
+                        panel.allowedContentTypes = [.png]
+                        if panel.runModal() == .OK, let saveURL = panel.url {
+                            try? data.write(to: saveURL)
+                            NSWorkspace.shared.activateFileViewerSelecting([saveURL])
+                        }
+                    } label: {
+                        Label("Save Image to...", systemImage: "square.and.arrow.down")
+                    }
+                }
+            }
+            Button { onPin() } label: {
+                Label(item.isPinned ? "Unpin" : "Pin", systemImage: item.isPinned ? "pin.slash" : "pin")
+            }
+            Divider()
+            Button(role: .destructive) { onDelete() } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
 
     private func hoverButton(icon: String, color: Color, action: @escaping () -> Void) -> some View {
@@ -103,8 +144,8 @@ struct ClipItemView: View {
 
         case .file:
             HStack(spacing: 8) {
-                if let url = item.resolvedFileURL {
-                    Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
+                if let icon = item.withSecurityScopedAccess({ NSWorkspace.shared.icon(forFile: $0.path) }) {
+                    Image(nsImage: icon)
                         .resizable()
                         .frame(width: 24, height: 24)
                 }
@@ -144,8 +185,14 @@ class DragSourceNSView: NSView, NSDraggingSource {
     private var localMouseMonitor: Any?
     private var mouseDownPoint: NSPoint?
     private var didDrag = false
+    private var tempDragFile: URL?
 
     override var mouseDownCanMoveWindow: Bool { false }
+
+    // Pass right-clicks through to SwiftUI so .contextMenu works
+    override func rightMouseDown(with event: NSEvent) {
+        superview?.rightMouseDown(with: event)
+    }
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
@@ -210,8 +257,15 @@ class DragSourceNSView: NSView, NSDraggingSource {
 
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
         DragSourceNSView.isDraggingFromKlipt = false
+        // Delay temp file cleanup to give receiving app time to read it
+        if let tempFile = tempDragFile {
+            let fileToDelete = tempFile
+            tempDragFile = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                try? FileManager.default.removeItem(at: fileToDelete)
+            }
+        }
         if operation != [] {
-            // Successful drop — close Klipty if it's open
             NotificationCenter.default.post(name: .hideKlipt, object: nil)
         }
     }
@@ -230,22 +284,61 @@ class DragSourceNSView: NSView, NSDraggingSource {
             beginDraggingSession(with: [draggingItem], event: event, source: self)
 
         case .image:
-            if let data = item.imageData {
-                let tempDir = FileManager.default.temporaryDirectory
-                let fileName = "Klipt_\(Int(Date().timeIntervalSince1970)).png"
-                let tempURL = tempDir.appendingPathComponent(fileName)
-                try? data.write(to: tempURL)
+            if let data = item.resolvedImageData {
+                // Use the persistent file on disk if available, otherwise write a temp copy
+                let fileURL: URL
+                if let existingURL = item.imageFileURL, FileManager.default.fileExists(atPath: existingURL.path) {
+                    fileURL = existingURL
+                } else {
+                    let tempDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+                        .appendingPathComponent("Klipt", isDirectory: true)
+                    try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+                    let fileName = "Klipt_\(Int(Date().timeIntervalSince1970)).png"
+                    fileURL = tempDir.appendingPathComponent(fileName)
+                    try? data.write(to: fileURL)
+                    self.tempDragFile = fileURL
+                }
 
-                let draggingItem = NSDraggingItem(pasteboardWriter: tempURL as NSURL)
+                // Provide both file URL and raw image data for maximum compatibility
+                let pbItem = NSPasteboardItem()
+                pbItem.setData(data, forType: .png)
+                if let tiff = item.nsImage?.tiffRepresentation {
+                    pbItem.setData(tiff, forType: .tiff)
+                }
+                pbItem.setString(fileURL.absoluteString, forType: .fileURL)
+
+                let draggingItem = NSDraggingItem(pasteboardWriter: pbItem)
                 draggingItem.setDraggingFrame(bounds, contents: item.nsImage ?? snapshot())
                 beginDraggingSession(with: [draggingItem], event: event, source: self)
             }
 
         case .file:
             if let url = item.resolvedFileURL {
-                let draggingItem = NSDraggingItem(pasteboardWriter: url as NSURL)
-                draggingItem.setDraggingFrame(bounds, contents: snapshot())
-                beginDraggingSession(with: [draggingItem], event: event, source: self)
+                let accessed = url.startAccessingSecurityScopedResource()
+                let imageExts: Set<String> = ["png", "jpg", "jpeg", "gif", "tiff", "bmp", "webp", "heic"]
+                if imageExts.contains(url.pathExtension.lowercased()),
+                   let data = try? Data(contentsOf: url) {
+                    if accessed { url.stopAccessingSecurityScopedResource() }
+                    // Image file — write as temp image file for reliable drag
+                    let tempDir = FileManager.default.temporaryDirectory
+                        .appendingPathComponent("KliptDrag", isDirectory: true)
+                    try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+                    let fileName = url.lastPathComponent
+                    let tempURL = tempDir.appendingPathComponent(fileName)
+                    try? data.write(to: tempURL)
+                    self.tempDragFile = tempURL
+
+                    let draggingItem = NSDraggingItem(pasteboardWriter: tempURL as NSURL)
+                    let preview = NSImage(data: data) ?? snapshot()
+                    draggingItem.setDraggingFrame(bounds, contents: preview)
+                    beginDraggingSession(with: [draggingItem], event: event, source: self)
+                } else {
+                    // Non-image file — drag the original URL
+                    let draggingItem = NSDraggingItem(pasteboardWriter: url as NSURL)
+                    draggingItem.setDraggingFrame(bounds, contents: snapshot())
+                    beginDraggingSession(with: [draggingItem], event: event, source: self)
+                    if accessed { url.stopAccessingSecurityScopedResource() }
+                }
             }
         }
     }

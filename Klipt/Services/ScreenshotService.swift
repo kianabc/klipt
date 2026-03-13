@@ -16,6 +16,9 @@ class ScreenshotService {
         try? FileManager.default.createDirectory(at: watchDir, withIntermediateDirectories: true)
     }
 
+    // Store reference for atexit cleanup
+    private static weak var activeInstance: ScreenshotService?
+
     func start() {
         // Save original screenshot location
         let task = Process()
@@ -38,6 +41,12 @@ class ScreenshotService {
 
         // Disable the floating thumbnail preview for faster capture
         runDefaults(["write", "com.apple.screencapture", "show-thumbnail", "-bool", "false"])
+
+        // Register crash-safe cleanup
+        ScreenshotService.activeInstance = self
+        atexit {
+            ScreenshotService.activeInstance?.stop()
+        }
 
         // Start watching
         startWatching()
@@ -101,15 +110,15 @@ class ScreenshotService {
             // Small delay to ensure the file is fully written
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 guard let self = self else { return }
-                guard let data = try? Data(contentsOf: filePath) else { return }
 
-                let item = ClipItem(imageData: data)
+                // Move screenshot to ~/Pictures/Klipt/
+                let destURL = ClipItem.imagesDirectory.appendingPathComponent(file)
+                try? fm.moveItem(at: filePath, to: destURL)
+                self.knownFiles.remove(file)
+
+                let item = ClipItem(imageFilePath: destURL.path)
                 self.store.add(item)
                 NotificationCenter.default.post(name: .itemAdded, object: nil)
-
-                // Remove the temp file
-                try? fm.removeItem(at: filePath)
-                self.knownFiles.remove(file)
             }
         }
     }

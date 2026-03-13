@@ -33,13 +33,30 @@ enum ClipItemType: String, Codable, CaseIterable {
 }
 
 struct ClipItem: Identifiable, Codable, Equatable {
+    /// Directory where Klipt stores captured images on disk
+    static let imagesDirectory: URL = {
+        let dir = FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("Klipt", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }()
+
+    /// Save image data to ~/Pictures/Klipt/ and return the file path
+    static func saveImageToDisk(_ data: Data, timestamp: Date = Date()) -> String {
+        let fileName = "Klipt_\(Int(timestamp.timeIntervalSince1970)).png"
+        let url = imagesDirectory.appendingPathComponent(fileName)
+        try? data.write(to: url)
+        return url.path
+    }
+
     let id: UUID
     let type: ClipItemType
     let createdAt: Date
     var isPinned: Bool
 
     var textContent: String?
-    var imageData: Data?
+    var imageData: Data?       // Legacy: inline image data (old items)
+    var imageFilePath: String? // Preferred: path to image file on disk
     var fileBookmarkData: Data?
     var fileName: String?
     var fileUTI: String?
@@ -58,6 +75,14 @@ struct ClipItem: Identifiable, Codable, Equatable {
         self.createdAt = Date()
         self.isPinned = false
         self.imageData = imageData
+    }
+
+    init(imageFilePath: String) {
+        self.id = UUID()
+        self.type = .image
+        self.createdAt = Date()
+        self.isPinned = false
+        self.imageFilePath = imageFilePath
     }
 
     init(fileURL: URL) {
@@ -95,14 +120,33 @@ struct ClipItem: Identifiable, Codable, Equatable {
             relativeTo: nil,
             bookmarkDataIsStale: &isStale
         )
-        if let url = url {
-            _ = url.startAccessingSecurityScopedResource()
-        }
         return url
     }
 
+    /// Access a file URL with security scope, automatically releasing when done.
+    func withSecurityScopedAccess<T>(_ body: (URL) -> T) -> T? {
+        guard let url = resolvedFileURL else { return nil }
+        let accessed = url.startAccessingSecurityScopedResource()
+        defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+        return body(url)
+    }
+
+    /// URL of the image file on disk (if stored as a file)
+    var imageFileURL: URL? {
+        guard let path = imageFilePath else { return nil }
+        return URL(fileURLWithPath: path)
+    }
+
+    /// Image data — loads from file on disk, falls back to legacy inline data
+    var resolvedImageData: Data? {
+        if let path = imageFilePath {
+            return try? Data(contentsOf: URL(fileURLWithPath: path))
+        }
+        return imageData
+    }
+
     var nsImage: NSImage? {
-        guard let data = imageData else { return nil }
+        guard let data = resolvedImageData else { return nil }
         return NSImage(data: data)
     }
 }

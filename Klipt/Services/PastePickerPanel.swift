@@ -51,6 +51,9 @@ class KliptPanel: NSPanel {
 
         // Add drop target overlay on top of hosting view
         let container = NSView(frame: NSRect(x: 0, y: 0, width: 480, height: 340))
+        container.wantsLayer = true
+        container.layer?.cornerRadius = 16
+        container.layer?.masksToBounds = true
         hosting.frame = container.bounds
         hosting.autoresizingMask = [.width, .height]
         container.addSubview(hosting)

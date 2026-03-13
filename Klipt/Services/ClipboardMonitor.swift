@@ -29,21 +29,22 @@ class ClipboardMonitor {
         guard currentCount != lastChangeCount else { return }
         lastChangeCount = currentCount
 
-        // Check for files first
-        if let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [
-            .urlReadingFileURLsOnly: true
-        ]) as? [URL], let url = urls.first {
-            store.add(ClipItem(fileURL: url))
-            return
-        }
-
-        // Check for images
+        // Check for images first (before files, since image files have both URL and image data)
         if let images = pasteboard.readObjects(forClasses: [NSImage.self]) as? [NSImage],
            let image = images.first,
            let tiffData = image.tiffRepresentation,
            let bitmap = NSBitmapImageRep(data: tiffData),
            let pngData = bitmap.representation(using: .png, properties: [:]) {
-            store.add(ClipItem(imageData: pngData))
+            let path = ClipItem.saveImageToDisk(pngData)
+            store.add(ClipItem(imageFilePath: path))
+            return
+        }
+
+        // Check for files
+        if let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [
+            .urlReadingFileURLsOnly: true
+        ]) as? [URL], let url = urls.first {
+            store.add(ClipItem(fileURL: url))
             return
         }
 
@@ -65,12 +66,22 @@ class ClipboardMonitor {
                 pasteboard.setString(text, forType: .string)
             }
         case .image:
-            if let data = item.imageData, let image = NSImage(data: data) {
+            if let data = item.resolvedImageData, let image = NSImage(data: data) {
                 pasteboard.writeObjects([image])
             }
         case .file:
             if let url = item.resolvedFileURL {
-                pasteboard.writeObjects([url as NSURL])
+                let accessed = url.startAccessingSecurityScopedResource()
+                let imageExts: Set<String> = ["png", "jpg", "jpeg", "gif", "tiff", "bmp", "webp", "heic"]
+                if imageExts.contains(url.pathExtension.lowercased()),
+                   let data = try? Data(contentsOf: url),
+                   let image = NSImage(data: data) {
+                    // Image file — paste as image data
+                    pasteboard.writeObjects([image])
+                } else {
+                    pasteboard.writeObjects([url as NSURL])
+                }
+                if accessed { url.stopAccessingSecurityScopedResource() }
             }
         }
 

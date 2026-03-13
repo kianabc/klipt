@@ -23,8 +23,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var flashTimer: Timer?
     private var expirationTimer: Timer?
+    private var activityToken: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Disable App Nap so global hotkey and clipboard monitoring stay active
+        activityToken = ProcessInfo.processInfo.beginActivity(
+            options: [.userInitiatedAllowingIdleSystemSleep, .idleSystemSleepDisabled],
+            reason: "Klipt needs to respond to global hotkeys and monitor clipboard"
+        )
+
         clipboardMonitor = ClipboardMonitor(store: store)
         screenshotService = ScreenshotService(store: store)
 
@@ -44,7 +51,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(onItemAdded), name: .itemAdded, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(clearUnpinned), name: .clearUnpinned, object: nil)
 
+        cleanupTempFiles()
         showOnboardingIfNeeded()
+    }
+
+    private func cleanupTempFiles() {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("KliptDrag")
+        try? FileManager.default.removeItem(at: tempDir)
     }
 
     private func setupStatusBar() {
@@ -56,6 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Show Klipt", action: #selector(toggleKlipt), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit Klipt", action: #selector(quitApp), keyEquivalent: "q"))

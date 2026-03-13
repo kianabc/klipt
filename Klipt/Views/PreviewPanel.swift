@@ -8,6 +8,7 @@ class PreviewPanel: NSPanel {
     override var canBecomeKey: Bool { true }
 
     private var keyMonitor: Any?
+    private var activeSecurityScopedURL: URL?
     var onMoveUp: (() -> ClipItem?)?
     var onMoveDown: (() -> ClipItem?)?
 
@@ -37,6 +38,10 @@ class PreviewPanel: NSPanel {
     }
 
     func show(item: ClipItem) {
+        // Release previous scoped access
+        activeSecurityScopedURL?.stopAccessingSecurityScopedResource()
+        activeSecurityScopedURL = nil
+
         guard let screen = NSScreen.main else { return }
         let screenFrame = screen.visibleFrame
 
@@ -60,6 +65,9 @@ class PreviewPanel: NSPanel {
         } else if item.type == .text {
             size = NSSize(width: min(560, maxW), height: min(420, maxH))
         } else if item.type == .file, let url = item.resolvedFileURL {
+            if url.startAccessingSecurityScopedResource() {
+                activeSecurityScopedURL = url
+            }
             let media = MediaType.detect(for: url)
             switch media {
             case .video:
@@ -87,6 +95,8 @@ class PreviewPanel: NSPanel {
 
     func dismiss() {
         stopKeyMonitor()
+        activeSecurityScopedURL?.stopAccessingSecurityScopedResource()
+        activeSecurityScopedURL = nil
         orderOut(nil)
     }
 
@@ -218,6 +228,7 @@ struct PreviewContentView: View {
             }
         case .file:
             if let url = item.resolvedFileURL {
+                // Security-scoped access is managed by PreviewPanel.show/dismiss
                 let media = MediaType.detect(for: url)
                 switch media {
                 case .video:
