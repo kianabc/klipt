@@ -188,6 +188,82 @@
             line-height: 1.5;
         }
 
+        /* Install guide */
+        .install {
+            padding: 0 0 80px;
+        }
+
+        .install h2 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .install .lead {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            padding: 18px 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple-light);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .step-content code {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--purple-light);
+        }
+
+        .install-note {
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--text-dim);
+            opacity: 0.7;
+            line-height: 1.5;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -254,6 +330,42 @@
                     <p>Drag files into Klipt to stash them. Drag out of Klipt to place them anywhere.</p>
                 </div>
             </div>
+        </section>
+
+        <section class="install" id="install">
+            <h2>Getting started</h2>
+            <p class="lead">Since Klipt isn't signed with an Apple Developer certificate yet, macOS will block it by default. Here's how to open it:</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h3>Download and move to Applications</h3>
+                        <p>Download the DMG above, open it, and drag Klipt into your Applications folder.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h3>Open with right-click</h3>
+                        <p>Don't double-click. Instead, <strong>right-click</strong> (or Control-click) Klipt.app and choose <strong>Open</strong>. You'll see a warning — click <strong>Open</strong> again to confirm.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h3>Grant Accessibility permission</h3>
+                        <p>Klipt needs Accessibility access to paste items with your keyboard shortcut. Go to <strong>System Settings &rarr; Privacy &amp; Security &rarr; Accessibility</strong> and enable Klipt.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <h3>You're set</h3>
+                        <p>Klipt lives in your menu bar. Press <code>Ctrl+Shift+V</code> to open it anytime. Everything you copy is automatically saved.</p>
+                    </div>
+                </div>
+            </div>
+            <p class="install-note">You only need to do the right-click step once. After that, Klipt opens normally. Apple code signing is coming in a future update.</p>
         </section>
 
         <footer>
