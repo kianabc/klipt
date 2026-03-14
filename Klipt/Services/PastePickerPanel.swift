@@ -97,11 +97,21 @@ class KliptPanel: NSPanel {
     }
 
     func showCentered() {
+        // Clean up any stale state from a previous show
+        stopClickOutsideMonitor()
+        orderOut(nil)
+
         openedForDrag = false
         kliptState.restore()
         kliptState.isDragMode = false
+
+        // Re-assert window level in case macOS changed it
+        level = .popUpMenu
+        collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+
         positionPanel()
-        makeKeyAndOrderFront(nil)
+        orderFrontRegardless()
+        makeKey()
         startClickOutsideMonitor()
     }
 
@@ -110,8 +120,9 @@ class KliptPanel: NSPanel {
         openedForDrag = true
         kliptState.reset()
         kliptState.isDragMode = true
+        level = .popUpMenu
         positionPanel()
-        orderFront(nil)
+        orderFrontRegardless()
     }
 
     func resetToLatest() {
@@ -120,10 +131,14 @@ class KliptPanel: NSPanel {
     }
 
     func showSettings() {
+        stopClickOutsideMonitor()
+        orderOut(nil)
         kliptState.selectedTab = .settings
         kliptState.isDragMode = false
+        level = .popUpMenu
         positionPanel()
-        makeKeyAndOrderFront(nil)
+        orderFrontRegardless()
+        makeKey()
         startClickOutsideMonitor()
     }
 
