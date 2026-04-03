@@ -1,0 +1,114 @@
+<svg width="480" height="520" viewBox="0 0 480 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Window background -->
+  <rect width="480" height="520" rx="16" fill="#111115"/>
+  <rect x="0.5" y="0.5" width="479" height="519" rx="15.5" stroke="white" stroke-opacity="0.08"/>
+
+  <!-- Tab bar -->
+  <!-- All tab (selected) -->
+  <rect x="14" y="12" width="52" height="28" rx="14" fill="white" fill-opacity="0.12"/>
+  <text x="26" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" font-weight="600" fill="white" fill-opacity="0.85">&#9638; All</text>
+
+  <!-- Text tab -->
+  <rect x="70" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="82" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="14" fill="#3b82f6" fill-opacity="0.4">&#9776;</text>
+
+  <!-- Screenshots tab -->
+  <rect x="110" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="122" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="14" fill="#8b5cf6" fill-opacity="0.4">&#9633;</text>
+
+  <!-- Files tab -->
+  <rect x="150" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="162" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="14" fill="#f59e0b" fill-opacity="0.4">&#9634;</text>
+
+  <!-- Pinned tab -->
+  <rect x="190" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="202" y="30" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" fill="#eab308" fill-opacity="0.4">&#9660;</text>
+
+  <!-- Settings tab -->
+  <rect x="230" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="241" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="14" fill="white" fill-opacity="0.25">&#9881;</text>
+
+  <!-- Delete button -->
+  <circle cx="452" cy="26" r="14" fill="#ef4444" fill-opacity="0.08"/>
+  <text x="447" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="#ef4444" fill-opacity="0.7">&#215;</text>
+
+  <!-- Search bar -->
+  <rect x="14" y="48" width="452" height="34" rx="10" fill="white" fill-opacity="0.05"/>
+  <text x="36" y="70" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="white" fill-opacity="0.3">&#128269; Search...</text>
+
+  <!-- Item 1 - Text item (selected) -->
+  <rect x="10" y="92" width="460" height="52" rx="10" fill="#3b82f6" fill-opacity="0.05"/>
+  <rect x="10.5" y="92.5" width="459" height="51" rx="9.5" stroke="#3b82f6" stroke-opacity="0.3" stroke-width="1.5"/>
+  <rect x="20" y="103" width="30" height="30" rx="8" fill="#3b82f6" fill-opacity="0.12"/>
+  <text x="30" y="123" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" font-weight="700" fill="#3b82f6">A</text>
+  <text x="60" y="115" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="white" fill-opacity="0.85">3565 W Alta Loma Ln, South Jordan...</text>
+  <text x="60" y="131" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="white" fill-opacity="0.15">just now</text>
+
+  <!-- Item 2 - Screenshot item -->
+  <rect x="10" y="148" width="460" height="52" rx="10" fill="transparent"/>
+  <rect x="20" y="159" width="30" height="30" rx="8" fill="#8b5cf6" fill-opacity="0.12"/>
+  <rect x="24" y="163" width="22" height="22" rx="4" fill="#8b5cf6" fill-opacity="0.2"/>
+  <text x="60" y="178" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="white" fill-opacity="0.85">Screenshot</text>
+  <text x="420" y="176" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="white" fill-opacity="0.15">2m ago</text>
+
+  <!-- Item 3 - Text item with pin -->
+  <rect x="10" y="204" width="460" height="52" rx="10" fill="transparent"/>
+  <rect x="20" y="215" width="30" height="30" rx="8" fill="#3b82f6" fill-opacity="0.12"/>
+  <text x="30" y="235" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" font-weight="700" fill="#3b82f6">A</text>
+  <text x="60" y="234" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="white" fill-opacity="0.85">801-503-1802</text>
+  <text x="420" y="228" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="white" fill-opacity="0.15">5m ago</text>
+  <!-- Orange pin indicator -->
+  <circle cx="446" cy="236" r="4" fill="#f59e0b" fill-opacity="0.7"/>
+
+  <!-- Item 4 - File item -->
+  <rect x="10" y="260" width="460" height="52" rx="10" fill="transparent"/>
+  <rect x="20" y="271" width="30" height="30" rx="8" fill="#f59e0b" fill-opacity="0.12"/>
+  <text x="28" y="291" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" font-weight="700" fill="#f59e0b">&#9634;</text>
+  <text x="60" y="290" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="white" fill-opacity="0.85">presentation-final.pdf</text>
+  <text x="410" y="288" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="white" fill-opacity="0.15">12m ago</text>
+
+  <!-- Item 5 - Screenshot item -->
+  <rect x="10" y="316" width="460" height="52" rx="10" fill="transparent"/>
+  <rect x="20" y="327" width="30" height="30" rx="8" fill="#8b5cf6" fill-opacity="0.12"/>
+  <rect x="24" y="331" width="22" height="22" rx="4" fill="#8b5cf6" fill-opacity="0.2"/>
+  <text x="60" y="346" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="white" fill-opacity="0.85">Screenshot</text>
+  <text x="410" y="344" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="white" fill-opacity="0.15">25m ago</text>
+
+  <!-- Item 6 - Group item -->
+  <rect x="10" y="372" width="460" height="52" rx="10" fill="transparent"/>
+  <rect x="20" y="383" width="30" height="30" rx="8" fill="#14b8a6" fill-opacity="0.12"/>
+  <text x="27" y="403" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" font-weight="700" fill="#14b8a6">&#9638;</text>
+  <text x="60" y="402" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="white" fill-opacity="0.85">5 files</text>
+  <text x="420" y="400" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="white" fill-opacity="0.15">1h ago</text>
+
+  <!-- Item 7 - Text item -->
+  <rect x="10" y="428" width="460" height="52" rx="10" fill="transparent"/>
+  <rect x="20" y="439" width="30" height="30" rx="8" fill="#3b82f6" fill-opacity="0.12"/>
+  <text x="30" y="459" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" font-weight="700" fill="#3b82f6">A</text>
+  <text x="60" y="458" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="white" fill-opacity="0.85">invest</text>
+  <text x="420" y="456" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="white" fill-opacity="0.15">2h ago</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="488" width="480" height="32" fill="white" fill-opacity="0.03"/>
+
+  <!-- Compact button -->
+  <rect x="14" y="493" width="86" height="22" rx="11" fill="white" fill-opacity="0.05"/>
+  <text x="27" y="508" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" font-weight="500" fill="white" fill-opacity="0.35">Compact</text>
+
+  <!-- Lock button -->
+  <rect x="104" y="492" width="24" height="24" rx="6" fill="white" fill-opacity="0.05"/>
+  <text x="111" y="508" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" fill="white" fill-opacity="0.35">&#128275;</text>
+
+  <!-- Trash button -->
+  <rect x="132" y="492" width="24" height="24" rx="6" fill="white" fill-opacity="0.05"/>
+  <text x="138" y="508" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" fill="white" fill-opacity="0.25">&#215;</text>
+
+  <!-- Hints -->
+  <rect x="360" y="495" width="22" height="18" rx="4" fill="white" fill-opacity="0.06"/>
+  <text x="364" y="507" font-family="-apple-system, SF Pro Display, sans-serif" font-size="9" font-weight="500" fill="white" fill-opacity="0.3">&#8593;&#8595;</text>
+  <text x="386" y="507" font-family="-apple-system, SF Pro Display, sans-serif" font-size="10" fill="white" fill-opacity="0.2">browse</text>
+
+  <rect x="434" y="495" width="22" height="18" rx="4" fill="white" fill-opacity="0.06"/>
+  <text x="438" y="507" font-family="-apple-system, SF Pro Display, sans-serif" font-size="9" font-weight="500" fill="white" fill-opacity="0.3">tab</text>
+  <text x="460" y="507" font-family="-apple-system, SF Pro Display, sans-serif" font-size="10" fill="white" fill-opacity="0.2">comp</text>
+</svg>

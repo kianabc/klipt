@@ -34,7 +34,7 @@ class ClipboardStore {
     }
 
     var fileItems: [ClipItem] {
-        items.filter { $0.type == .file }
+        items.filter { $0.type == .file || $0.type == .group }
     }
 
     var lastItem: ClipItem? {

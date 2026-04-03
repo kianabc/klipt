@@ -6,12 +6,14 @@ enum ClipItemType: String, Codable, CaseIterable {
     case text
     case image
     case file
+    case group
 
     var label: String {
         switch self {
         case .text: return "Text"
         case .image: return "Screenshots"
         case .file: return "Files"
+        case .group: return "Group"
         }
     }
 
@@ -20,6 +22,7 @@ enum ClipItemType: String, Codable, CaseIterable {
         case .text: return "doc.text.fill"
         case .image: return "photo.fill"
         case .file: return "doc.fill"
+        case .group: return "square.grid.2x2.fill"
         }
     }
 
@@ -28,6 +31,7 @@ enum ClipItemType: String, Codable, CaseIterable {
         case .text: return .blue
         case .image: return .purple
         case .file: return .orange
+        case .group: return .teal
         }
     }
 }
@@ -60,6 +64,8 @@ struct ClipItem: Identifiable, Codable, Equatable {
     var fileBookmarkData: Data?
     var fileName: String?
     var fileUTI: String?
+    var groupFileBookmarks: [Data]?
+    var groupFileNames: [String]?
 
     init(text: String) {
         self.id = UUID()
@@ -99,6 +105,17 @@ struct ClipItem: Identifiable, Codable, Equatable {
         )
     }
 
+    init(fileURLs: [URL]) {
+        self.id = UUID()
+        self.type = .group
+        self.createdAt = Date()
+        self.isPinned = false
+        self.groupFileNames = fileURLs.map { $0.lastPathComponent }
+        self.groupFileBookmarks = fileURLs.compactMap {
+            try? $0.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+        }
+    }
+
     var displayTitle: String {
         switch type {
         case .text:
@@ -108,6 +125,8 @@ struct ClipItem: Identifiable, Codable, Equatable {
             return "Screenshot"
         case .file:
             return fileName ?? "File"
+        case .group:
+            return "\(groupFileNames?.count ?? 0) files"
         }
     }
 
@@ -148,5 +167,13 @@ struct ClipItem: Identifiable, Codable, Equatable {
     var nsImage: NSImage? {
         guard let data = resolvedImageData else { return nil }
         return NSImage(data: data)
+    }
+
+    var resolvedGroupFileURLs: [URL] {
+        guard let bookmarks = groupFileBookmarks else { return [] }
+        return bookmarks.compactMap { data in
+            var isStale = false
+            return try? URL(resolvingBookmarkData: data, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
+        }
     }
 }

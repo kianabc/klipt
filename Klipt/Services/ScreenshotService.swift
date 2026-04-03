@@ -100,6 +100,8 @@ class ScreenshotService {
         guard let files = try? fm.contentsOfDirectory(atPath: watchDir.path) else { return }
 
         for file in files {
+            // Skip hidden temp files — macOS writes ".Screenshot..." first, then renames
+            guard !file.hasPrefix(".") else { continue }
             guard !knownFiles.contains(file) else { continue }
             knownFiles.insert(file)
 

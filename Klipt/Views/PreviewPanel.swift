@@ -25,8 +25,9 @@ class PreviewPanel: NSPanel {
         self.backgroundColor = .clear
         self.hasShadow = true
         self.hidesOnDeactivate = false
-        self.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        self.isMovable = false
+        self.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
+        self.isMovable = true
+        self.isMovableByWindowBackground = true
     }
 
     func toggle(item: ClipItem) {
@@ -268,6 +269,10 @@ struct PreviewContentView: View {
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+        case .group:
+            GroupThumbnailGridView(urls: item.resolvedGroupFileURLs)
+                .frame(maxWidth: .infinity)
         }
     }
 }

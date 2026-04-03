@@ -1,6 +1,9 @@
 import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
+import os.log
+
+private let logger = Logger(subsystem: "app.klipt.Klipt", category: "Panel")
 
 class KliptPanel: NSPanel {
     private let store: ClipboardStore
@@ -23,6 +26,19 @@ class KliptPanel: NSPanel {
 
     override var canBecomeKey: Bool { true }
 
+    // Keep panel visible and on top when it loses key status (user clicked another window)
+    override func resignKey() {
+        super.resignKey()
+        if kliptState.isPinnedToScreen {
+            // Re-show immediately after macOS tries to deactivate us
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, self.kliptState.isPinnedToScreen else { return }
+                self.level = .popUpMenu
+                self.orderFrontRegardless()
+            }
+        }
+    }
+
     init(store: ClipboardStore, clipboardMonitor: ClipboardMonitor, settings: KliptSettings, onShortcutsChanged: @escaping () -> Void) {
         self.store = store
         self.clipboardMonitor = clipboardMonitor
@@ -43,6 +59,7 @@ class KliptPanel: NSPanel {
             onConfirm: { [weak self] in self?.confirmSelection() },
             onTogglePin: { [weak self] in self?.togglePin() },
             onToggleExpand: { [weak self] in self?.toggleExpand() },
+            onTogglePinToScreen: { [weak self] in self?.togglePinToScreen() },
             onShortcutsChanged: onShortcutsChanged
         )
         let hosting = NSHostingView(rootView: view)
@@ -91,28 +108,40 @@ class KliptPanel: NSPanel {
         self.backgroundColor = .clear
         self.hasShadow = true
         self.hidesOnDeactivate = false
-        self.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+        self.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .stationary]
         self.isMovable = true
         self.isMovableByWindowBackground = true
     }
 
     func showCentered() {
+        AppDelegate.log("showCentered: isVisible=\(self.isVisible)")
+
         // Clean up any stale state from a previous show
+        kliptState.isPinnedToScreen = false
         stopClickOutsideMonitor()
         orderOut(nil)
 
         openedForDrag = false
-        kliptState.restore()
+        kliptState.restore(latestItemType: store.lastItem?.type)
         kliptState.isDragMode = false
 
         // Re-assert window level in case macOS changed it
         level = .popUpMenu
-        collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+        collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .stationary]
 
         positionPanel()
+        AppDelegate.log("showCentered: before orderFront, frame=\(self.frame), screen=\(NSScreen.main?.visibleFrame.debugDescription ?? "nil")")
         orderFrontRegardless()
         makeKey()
+        AppDelegate.log("showCentered: after orderFront, isVisible=\(self.isVisible)")
+
+        // Delay monitor start so the menu bar click that triggered this
+        // doesn't immediately dismiss the panel
+        ignoreClickOutside = true
         startClickOutsideMonitor()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.ignoreClickOutside = false
+        }
     }
 
     func showForDrag() {
@@ -131,6 +160,7 @@ class KliptPanel: NSPanel {
     }
 
     func showSettings() {
+        kliptState.isPinnedToScreen = false
         stopClickOutsideMonitor()
         orderOut(nil)
         kliptState.selectedTab = .settings
@@ -143,6 +173,8 @@ class KliptPanel: NSPanel {
     }
 
     func dismiss() {
+        AppDelegate.log("dismiss: isVisible=\(self.isVisible)")
+        kliptState.isPinnedToScreen = false
         stopClickOutsideMonitor()
         savePosition()
         orderOut(nil)
@@ -153,6 +185,15 @@ class KliptPanel: NSPanel {
         UserDefaults.standard.set(frame.origin.x, forKey: "klipt_windowX")
         UserDefaults.standard.set(frame.origin.y + frame.size.height, forKey: "klipt_windowTop")
         UserDefaults.standard.set(true, forKey: "klipt_hasPosition")
+    }
+
+    func togglePinToScreen() {
+        kliptState.isPinnedToScreen.toggle()
+        if kliptState.isPinnedToScreen {
+            stopClickOutsideMonitor()
+        } else {
+            startClickOutsideMonitor()
+        }
     }
 
     func toggleExpand() {
@@ -192,8 +233,7 @@ class KliptPanel: NSPanel {
             return min(max(totalHeight, minCompactHeight), maxCompactHeight)
         }
 
-        if item.type == .file {
-            // Files get a taller panel to show the thumbnail preview + filename
+        if item.type == .file || item.type == .group {
             return min(minCompactHeight + 200, maxCompactHeight)
         }
 
@@ -376,7 +416,7 @@ class KliptPanel: NSPanel {
     private func startClickOutsideMonitor() {
         stopClickOutsideMonitor()
         clickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            guard let self = self, !self.ignoreClickOutside else { return }
+            guard let self = self, !self.ignoreClickOutside, !self.kliptState.isPinnedToScreen else { return }
             self.dismiss()
         }
     }
@@ -412,6 +452,12 @@ class KliptDropTargetView: NSView {
 
     required init?(coder: NSCoder) { fatalError() }
 
+    // Let all mouse events pass through to the SwiftUI view underneath.
+    // Drag-and-drop still works because AppKit's drag system doesn't rely on hitTest.
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil
+    }
+
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         NotificationCenter.default.post(name: .dragEnteredKlipt, object: nil)
         return .copy
@@ -437,8 +483,10 @@ class KliptDropTargetView: NSView {
         if let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [
             .urlReadingFileURLsOnly: true
         ]) as? [URL], !urls.isEmpty {
-            for url in urls {
-                store.add(ClipItem(fileURL: url))
+            if urls.count > 1 {
+                store.add(ClipItem(fileURLs: urls))
+            } else {
+                store.add(ClipItem(fileURL: urls[0]))
             }
             NotificationCenter.default.post(name: .itemAdded, object: nil)
             return true

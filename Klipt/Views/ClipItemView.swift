@@ -76,6 +76,18 @@ struct ClipItemView: View {
                     Label("Show in Finder", systemImage: "folder")
                 }
             }
+            if item.type == .group {
+                Button {
+                    let urls = item.resolvedGroupFileURLs
+                    let accessTokens = urls.map { ($0, $0.startAccessingSecurityScopedResource()) }
+                    NSWorkspace.shared.activateFileViewerSelecting(urls)
+                    for (url, accessed) in accessTokens {
+                        if accessed { url.stopAccessingSecurityScopedResource() }
+                    }
+                } label: {
+                    Label("Show All in Finder", systemImage: "folder")
+                }
+            }
             if item.type == .image {
                 if let url = item.imageFileURL {
                     Button {
@@ -149,6 +161,18 @@ struct ClipItemView: View {
                         .resizable()
                         .frame(width: 24, height: 24)
                 }
+                Text(item.displayTitle)
+                    .font(.system(size: 13))
+                    .lineLimit(1)
+                    .foregroundStyle(.primary.opacity(0.85))
+            }
+
+        case .group:
+            HStack(spacing: 8) {
+                Image(systemName: "square.grid.2x2.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(.teal)
+                    .frame(width: 24, height: 24)
                 Text(item.displayTitle)
                     .font(.system(size: 13))
                     .lineLimit(1)
@@ -340,6 +364,19 @@ class DragSourceNSView: NSView, NSDraggingSource {
                     if accessed { url.stopAccessingSecurityScopedResource() }
                 }
             }
+
+        case .group:
+            let urls = item.resolvedGroupFileURLs
+            guard !urls.isEmpty else { return }
+            var draggingItems: [NSDraggingItem] = []
+            for url in urls {
+                let accessed = url.startAccessingSecurityScopedResource()
+                let draggingItem = NSDraggingItem(pasteboardWriter: url as NSURL)
+                draggingItem.setDraggingFrame(bounds, contents: snapshot())
+                draggingItems.append(draggingItem)
+                if accessed { url.stopAccessingSecurityScopedResource() }
+            }
+            beginDraggingSession(with: draggingItems, event: event, source: self)
         }
     }
 

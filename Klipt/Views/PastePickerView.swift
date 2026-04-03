@@ -50,6 +50,7 @@ class KliptState {
         }
     }
     var isExpanded: Bool = false
+    var isPinnedToScreen: Bool = false
     var searchText: String = ""
     var isDragMode: Bool = false
     var onTabChanged: ((KliptTab) -> Void)?
@@ -60,24 +61,35 @@ class KliptState {
         selectedTab = .all
         selectedIndex = 0
         isExpanded = false
+        isPinnedToScreen = false
         searchText = ""
         isDragMode = false
         UserDefaults.standard.set(KliptTab.all.rawValue, forKey: "klipt_lastTab")
         UserDefaults.standard.set(0, forKey: "klipt_lastIndex")
     }
 
-    /// Restore last state — called when reopening the panel
-    func restore() {
-        if let saved = UserDefaults.standard.string(forKey: "klipt_lastTab"),
-           let tab = KliptTab(rawValue: saved), tab != .settings {
-            selectedTab = tab
+    /// Restore last state — called when reopening the panel.
+    /// Defaults to the tab matching the most recent item.
+    func restore(latestItemType: ClipItemType? = nil) {
+        if let type = latestItemType {
+            selectedTab = tabForItemType(type)
         } else {
             selectedTab = .all
         }
-        selectedIndex = UserDefaults.standard.integer(forKey: "klipt_lastIndex")
+        selectedIndex = 0
         isExpanded = false
+        isPinnedToScreen = false
         searchText = ""
         isDragMode = false
+    }
+
+    func tabForItemType(_ type: ClipItemType) -> KliptTab {
+        switch type {
+        case .text: return .text
+        case .image: return .images
+        case .file: return .files
+        case .group: return .files
+        }
     }
 }
 
@@ -89,6 +101,7 @@ struct KliptMainView: View {
     var onConfirm: (() -> Void)?
     var onTogglePin: (() -> Void)?
     var onToggleExpand: (() -> Void)?
+    var onTogglePinToScreen: (() -> Void)?
     var onShortcutsChanged: (() -> Void)?
 
     @State private var showClearConfirmation = false
@@ -113,6 +126,8 @@ struct KliptMainView: View {
                 return "screenshot".localizedCaseInsensitiveContains(state.searchText)
             case .file:
                 return item.fileName?.localizedCaseInsensitiveContains(state.searchText) ?? false
+            case .group:
+                return item.groupFileNames?.contains { $0.localizedCaseInsensitiveContains(state.searchText) } ?? false
             }
         }
     }
@@ -179,36 +194,24 @@ struct KliptMainView: View {
 
             Spacer(minLength: 4)
 
-            // Pin & Delete buttons
+            // Delete button
             if state.selectedTab != .settings, !items.isEmpty {
                 let item = items[min(state.selectedIndex, items.count - 1)]
-                HStack(spacing: 5) {
-                    Button(action: { onTogglePin?() }) {
-                        Image(systemName: item.isPinned ? "pin.slash.fill" : "pin.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(item.isPinned ? Color.green : Color.green.opacity(0.35))
-                            .frame(width: 28, height: 28)
-                            .background(item.isPinned ? Color.green.opacity(0.15) : Color.green.opacity(0.05))
-                            .clipShape(Circle())
+                Button(action: {
+                    store.remove(item)
+                    let newItems = self.items
+                    if state.selectedIndex >= newItems.count {
+                        state.selectedIndex = max(0, newItems.count - 1)
                     }
-                    .buttonStyle(.plain)
-
-                    Button(action: {
-                        store.remove(item)
-                        let newItems = self.items
-                        if state.selectedIndex >= newItems.count {
-                            state.selectedIndex = max(0, newItems.count - 1)
-                        }
-                    }) {
-                        Image(systemName: "trash.fill")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(.red.opacity(0.7))
-                            .frame(width: 28, height: 28)
-                            .background(Color.red.opacity(0.08))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
+                }) {
+                    Image(systemName: "trash.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.red.opacity(0.7))
+                        .frame(width: 28, height: 28)
+                        .background(Color.red.opacity(0.08))
+                        .clipShape(Circle())
                 }
+                .buttonStyle(.plain)
                 .fixedSize()
             }
         }
@@ -230,6 +233,18 @@ struct KliptMainView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.horizontal, item.type == .text ? 20 : 10)
                         .padding(.vertical, item.type == .text ? 14 : 8)
+                        .overlay(alignment: .topTrailing) {
+                            Button(action: { onTogglePin?() }) {
+                                Image(systemName: item.isPinned ? "pin.slash.fill" : "pin.fill")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundStyle(item.isPinned ? .white : .white.opacity(0.5))
+                                    .frame(width: 26, height: 26)
+                                    .background(item.isPinned ? Color.orange : Color.black.opacity(0.4))
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .padding(6)
+                        }
                         .overlay(DragSourceView(item: item, onSelect: { onConfirm?() }))
                         .contextMenu { itemContextMenu(item) }
 
@@ -329,6 +344,18 @@ struct KliptMainView: View {
                     .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
+
+                // Lock to screen button
+                Button(action: { onTogglePinToScreen?() }) {
+                    Image(systemName: state.isPinnedToScreen ? "lock.fill" : "lock.open.fill")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(state.isPinnedToScreen ? .yellow : .secondary)
+                        .frame(width: 28, height: 28)
+                        .background(state.isPinnedToScreen ? Color.yellow.opacity(0.15) : Color.primary.opacity(0.05))
+                        .clipShape(RoundedRectangle(cornerRadius: 7))
+                }
+                .buttonStyle(.plain)
+                .help(state.isPinnedToScreen ? "Unlock (dismiss on click away)" : "Lock on screen")
 
                 if state.isExpanded {
                     Button(action: { showClearConfirmation = true }) {
@@ -473,6 +500,19 @@ struct KliptMainView: View {
                         .lineLimit(1)
                         .foregroundStyle(.primary.opacity(0.85))
                 }
+
+            case .group:
+                GroupThumbnailGridView(urls: item.resolvedGroupFileURLs)
+                    .frame(maxWidth: .infinity)
+                HStack(spacing: 10) {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.teal)
+                    Text(item.displayTitle)
+                        .font(.system(size: 14, weight: .medium))
+                        .lineLimit(1)
+                        .foregroundStyle(.primary.opacity(0.85))
+                }
             }
 
             HStack(spacing: 6) {
@@ -523,6 +563,18 @@ struct KliptMainView: View {
                 }
             } label: {
                 Label("Show in Finder", systemImage: "folder")
+            }
+        }
+        if item.type == .group {
+            Button {
+                let urls = item.resolvedGroupFileURLs
+                let accessTokens = urls.map { ($0, $0.startAccessingSecurityScopedResource()) }
+                NSWorkspace.shared.activateFileViewerSelecting(urls)
+                for (url, accessed) in accessTokens {
+                    if accessed { url.stopAccessingSecurityScopedResource() }
+                }
+            } label: {
+                Label("Show All in Finder", systemImage: "folder")
             }
         }
         if item.type == .image {
@@ -626,6 +678,43 @@ struct FileThumbnailView: View {
                     self.thumbnail = rep.nsImage
                 }
             }
+        }
+    }
+}
+
+struct GroupThumbnailGridView: View {
+    let urls: [URL]
+    @State private var icons: [NSImage] = []
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
+            ForEach(Array(icons.prefix(4).enumerated()), id: \.offset) { _, icon in
+                Image(nsImage: icon)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if urls.count > 4 {
+                Text("+\(urls.count - 4)")
+                    .font(.system(size: 11, weight: .semibold))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Capsule())
+            }
+        }
+        .onAppear { loadIcons() }
+    }
+
+    private func loadIcons() {
+        icons = urls.prefix(4).map { url in
+            let accessed = url.startAccessingSecurityScopedResource()
+            let icon = NSWorkspace.shared.icon(forFile: url.path)
+            if accessed { url.stopAccessingSecurityScopedResource() }
+            return icon
         }
     }
 }

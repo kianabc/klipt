@@ -83,6 +83,14 @@ class ClipboardMonitor {
                 }
                 if accessed { url.stopAccessingSecurityScopedResource() }
             }
+        case .group:
+            let urls = item.resolvedGroupFileURLs
+            let nsurls: [NSURL] = urls.map { url in
+                _ = url.startAccessingSecurityScopedResource()
+                return url as NSURL
+            }
+            pasteboard.writeObjects(nsurls)
+            for url in urls { url.stopAccessingSecurityScopedResource() }
         }
 
         // Update change count so we don't re-capture our own paste

@@ -1,5 +1,8 @@
 import SwiftUI
 import AppKit
+import os.log
+
+private let logger = Logger(subsystem: "app.klipt.Klipt", category: "App")
 
 @main
 struct KliptApp: App {
@@ -26,11 +29,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var activityToken: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Disable App Nap so global hotkey and clipboard monitoring stay active
+        // Disable App Nap and Automatic Termination
         activityToken = ProcessInfo.processInfo.beginActivity(
             options: [.userInitiatedAllowingIdleSystemSleep, .idleSystemSleepDisabled],
             reason: "Klipt needs to respond to global hotkeys and monitor clipboard"
         )
+        ProcessInfo.processInfo.disableAutomaticTermination("Klipt must remain running for hotkeys and clipboard monitoring")
+        ProcessInfo.processInfo.disableSuddenTermination()
+        logger.info("Klipt launched, automatic termination disabled")
 
         clipboardMonitor = ClipboardMonitor(store: store)
         screenshotService = ScreenshotService(store: store)
@@ -69,7 +75,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Show Klipt", action: #selector(toggleKlipt), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Show Klipt", action: #selector(showKlipt), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit Klipt", action: #selector(quitApp), keyEquivalent: "q"))
@@ -111,12 +117,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
     }
 
-    @objc func toggleKlipt() {
+    @objc func showKlipt() {
+        flashTimer?.invalidate()
+        flashTimer = nil
         guard let panel = kliptPanel else { return }
+        kliptLog("showKlipt: isVisible=\(panel.isVisible)")
+        panel.showCentered()
+    }
+
+    @objc func toggleKlipt() {
+        flashTimer?.invalidate()
+        flashTimer = nil
+        guard let panel = kliptPanel else { return }
+        kliptLog("toggleKlipt: isVisible=\(panel.isVisible)")
         if panel.isVisible {
             panel.dismiss()
         } else {
             panel.showCentered()
+        }
+    }
+
+    func kliptLog(_ message: String) {
+        AppDelegate.log(message)
+    }
+
+    static func log(_ message: String) {
+        let logDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("Klipt", isDirectory: true)
+        try? FileManager.default.createDirectory(at: logDir, withIntermediateDirectories: true)
+        let logFile = logDir.appendingPathComponent("klipt.log")
+        let entry = "\(ISO8601DateFormatter().string(from: Date())) \(message)\n"
+        if let data = entry.data(using: .utf8) {
+            if let handle = try? FileHandle(forWritingTo: logFile) {
+                handle.seekToEndOfFile()
+                handle.write(data)
+                handle.closeFile()
+            } else {
+                try? data.write(to: logFile)
+            }
         }
     }
 
@@ -139,7 +177,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             // Flash the panel briefly to show the new item
             panel.showCentered()
-            flashTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+            flashTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
                 self?.hideKlipt()
             }
         }

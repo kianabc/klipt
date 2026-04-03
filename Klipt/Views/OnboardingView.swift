@@ -288,7 +288,7 @@ class OnboardingWindow: NSPanel {
         self.backgroundColor = .clear
         self.hasShadow = true
         self.hidesOnDeactivate = false
-        self.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        self.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
         self.isMovable = true
     }
 

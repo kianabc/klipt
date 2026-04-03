@@ -1,0 +1,102 @@
+<svg width="480" height="420" viewBox="0 0 480 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Window background -->
+  <rect width="480" height="420" rx="16" fill="#111115"/>
+  <rect x="0.5" y="0.5" width="479" height="419" rx="15.5" stroke="white" stroke-opacity="0.08"/>
+
+  <!-- Tab bar -->
+  <rect x="14" y="12" width="42" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="23" y="30" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" font-weight="600" fill="white" fill-opacity="0.4">
+    <tspan dy="0">&#9638;</tspan>
+  </text>
+
+  <!-- Text tab -->
+  <rect x="60" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="72" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="14" fill="#3b82f6" fill-opacity="0.4">&#9776;</text>
+
+  <!-- Screenshots tab (selected) -->
+  <rect x="100" y="12" width="72" height="28" rx="14" fill="#8b5cf6" fill-opacity="0.2"/>
+  <text x="113" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="13" fill="#8b5cf6" fill-opacity="0.9">&#9633; 12</text>
+
+  <!-- Files tab -->
+  <rect x="176" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="188" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="14" fill="#f59e0b" fill-opacity="0.4">&#9634;</text>
+
+  <!-- Pinned tab -->
+  <rect x="216" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="228" y="30" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" fill="#eab308" fill-opacity="0.4">&#9660;</text>
+
+  <!-- Settings tab -->
+  <rect x="256" y="12" width="36" height="28" rx="14" fill="white" fill-opacity="0.04"/>
+  <text x="267" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="14" fill="white" fill-opacity="0.25">&#9881;</text>
+
+  <!-- Delete button -->
+  <circle cx="452" cy="26" r="14" fill="#ef4444" fill-opacity="0.08"/>
+  <text x="447" y="31" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="#ef4444" fill-opacity="0.7">&#215;</text>
+
+  <!-- Screenshot preview area -->
+  <rect x="10" y="50" width="460" height="280" rx="8" fill="#1a1a24"/>
+
+  <!-- Fake screenshot content: a website mockup -->
+  <!-- Browser chrome -->
+  <rect x="30" y="70" width="420" height="240" rx="8" fill="#222230"/>
+  <!-- Address bar -->
+  <rect x="50" y="82" width="380" height="24" rx="6" fill="#2a2a38"/>
+  <text x="68" y="98" font-family="-apple-system, SF Pro Display, monospace" font-size="11" fill="white" fill-opacity="0.4">klipt.app</text>
+  <!-- Dots -->
+  <circle cx="42" cy="82" r="4" fill="#ff5f57" fill-opacity="0.6"/>
+  <circle cx="54" cy="82" r="4" fill="#febc2e" fill-opacity="0.6"/>
+  <circle cx="66" cy="82" r="4" fill="#28c840" fill-opacity="0.6"/>
+  <!-- Content blocks -->
+  <rect x="50" y="120" width="180" height="16" rx="3" fill="white" fill-opacity="0.08"/>
+  <rect x="50" y="144" width="280" height="10" rx="3" fill="white" fill-opacity="0.04"/>
+  <rect x="50" y="160" width="240" height="10" rx="3" fill="white" fill-opacity="0.04"/>
+  <rect x="50" y="180" width="140" height="32" rx="8" fill="#8b5cf6" fill-opacity="0.3"/>
+  <text x="78" y="200" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" font-weight="600" fill="white" fill-opacity="0.6">Download</text>
+  <!-- Cards -->
+  <rect x="50" y="224" width="130" height="70" rx="8" fill="white" fill-opacity="0.04"/>
+  <rect x="60" y="234" width="60" height="8" rx="2" fill="white" fill-opacity="0.1"/>
+  <rect x="60" y="248" width="100" height="6" rx="2" fill="white" fill-opacity="0.04"/>
+  <rect x="190" y="224" width="130" height="70" rx="8" fill="white" fill-opacity="0.04"/>
+  <rect x="200" y="234" width="60" height="8" rx="2" fill="white" fill-opacity="0.1"/>
+  <rect x="200" y="248" width="100" height="6" rx="2" fill="white" fill-opacity="0.04"/>
+  <rect x="330" y="224" width="100" height="70" rx="8" fill="white" fill-opacity="0.04"/>
+  <rect x="340" y="234" width="60" height="8" rx="2" fill="white" fill-opacity="0.1"/>
+  <rect x="340" y="248" width="80" height="6" rx="2" fill="white" fill-opacity="0.04"/>
+
+  <!-- Pin button on preview (top-right) -->
+  <circle cx="446" cy="66" r="13" fill="black" fill-opacity="0.5"/>
+  <text x="441" y="71" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" fill="white" fill-opacity="0.5">&#9660;</text>
+
+  <!-- Timestamp -->
+  <text x="14" y="348" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" fill="white" fill-opacity="0.35">3 min ago</text>
+
+  <!-- Counter -->
+  <text x="202" y="372" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" font-weight="700" fill="white" fill-opacity="0.2">&#9650;</text>
+  <text x="220" y="374" font-family="-apple-system, SF Pro Display, sans-serif" font-size="15" font-weight="700" fill="#8b5cf6">1</text>
+  <text x="230" y="374" font-family="-apple-system, SF Pro Display, sans-serif" font-size="15" font-weight="500" fill="white" fill-opacity="0.35"> / 12</text>
+  <text x="272" y="372" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" font-weight="700" fill="white" fill-opacity="0.2">&#9660;</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="388" width="480" height="32" fill="white" fill-opacity="0.03"/>
+
+  <!-- Expand button -->
+  <rect x="14" y="393" width="82" height="22" rx="11" fill="white" fill-opacity="0.05"/>
+  <text x="30" y="408" font-family="-apple-system, SF Pro Display, sans-serif" font-size="11" font-weight="500" fill="white" fill-opacity="0.35">Expand</text>
+
+  <!-- Lock button -->
+  <rect x="100" y="392" width="24" height="24" rx="6" fill="white" fill-opacity="0.05"/>
+  <text x="107" y="408" font-family="-apple-system, SF Pro Display, sans-serif" font-size="12" fill="white" fill-opacity="0.35">&#128275;</text>
+
+  <!-- Hints -->
+  <rect x="310" y="395" width="22" height="18" rx="4" fill="white" fill-opacity="0.06"/>
+  <text x="314" y="407" font-family="-apple-system, SF Pro Display, sans-serif" font-size="9" font-weight="500" fill="white" fill-opacity="0.3">&#8593;&#8595;</text>
+  <text x="336" y="407" font-family="-apple-system, SF Pro Display, sans-serif" font-size="10" fill="white" fill-opacity="0.2">browse</text>
+
+  <rect x="380" y="395" width="16" height="18" rx="4" fill="white" fill-opacity="0.06"/>
+  <text x="384" y="407" font-family="-apple-system, SF Pro Display, sans-serif" font-size="9" font-weight="500" fill="white" fill-opacity="0.3">&#9166;</text>
+  <text x="400" y="407" font-family="-apple-system, SF Pro Display, sans-serif" font-size="10" fill="white" fill-opacity="0.2">paste</text>
+
+  <rect x="434" y="395" width="22" height="18" rx="4" fill="white" fill-opacity="0.06"/>
+  <text x="438" y="407" font-family="-apple-system, SF Pro Display, sans-serif" font-size="9" font-weight="500" fill="white" fill-opacity="0.3">tab</text>
+  <text x="460" y="407" font-family="-apple-system, SF Pro Display, sans-serif" font-size="10" fill="white" fill-opacity="0.2">exp</text>
+</svg>
