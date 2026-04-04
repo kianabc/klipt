@@ -245,7 +245,7 @@ struct SettingsView: View {
                 // Buy button
                 Button(action: {
                     // TODO: Replace with your LemonSqueezy checkout URL
-                    if let url = URL(string: "https://kliptapp.lemonsqueezy.com/checkout/buy/49253fd2-f7b1-4193-9f95-6c5168aa361a") {
+                    if let url = URL(string: "https://kliptapp.lemonsqueezy.com/checkout/buy/0d2fa6e2-796b-4118-9e46-5521fbbe10f4") {
                         NSWorkspace.shared.open(url)
                     }
                 }) {
