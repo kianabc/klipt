@@ -52,6 +52,7 @@ class KliptState {
     var isExpanded: Bool = false
     var isPinnedToScreen: Bool = false
     var searchText: String = ""
+    var focusSearch: Bool = false
     var isDragMode: Bool = false
     var onTabChanged: ((KliptTab) -> Void)?
     var onSelectionChanged: (() -> Void)?
@@ -106,6 +107,7 @@ struct KliptMainView: View {
 
     @State private var showClearConfirmation = false
     @State private var isDragTargeted = false
+    @FocusState private var isSearchFocused: Bool
 
     var items: [ClipItem] {
         let base: [ClipItem]
@@ -194,8 +196,23 @@ struct KliptMainView: View {
 
             Spacer(minLength: 4)
 
-            // Delete button
+            // Search & Delete buttons
             if state.selectedTab != .settings, !items.isEmpty {
+                if !state.isExpanded {
+                    Button(action: {
+                        onToggleExpand?()
+                        state.focusSearch = true
+                    }) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 28, height: 28)
+                            .background(Color.primary.opacity(0.05))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 let item = items[min(state.selectedIndex, items.count - 1)]
                 Button(action: {
                     store.remove(item)
@@ -233,6 +250,7 @@ struct KliptMainView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.horizontal, item.type == .text ? 20 : 10)
                         .padding(.vertical, item.type == .text ? 14 : 8)
+                        .overlay(DragSourceView(item: item, onSelect: { onConfirm?() }))
                         .overlay(alignment: .topTrailing) {
                             Button(action: { onTogglePin?() }) {
                                 Image(systemName: item.isPinned ? "pin.slash.fill" : "pin.fill")
@@ -245,7 +263,6 @@ struct KliptMainView: View {
                             .buttonStyle(.plain)
                             .padding(6)
                         }
-                        .overlay(DragSourceView(item: item, onSelect: { onConfirm?() }))
                         .contextMenu { itemContextMenu(item) }
 
                     // Centered counter
@@ -284,8 +301,15 @@ struct KliptMainView: View {
                     .textFieldStyle(.plain)
                     .font(.system(size: 14))
                     .foregroundStyle(.primary)
+                    .focused($isSearchFocused)
             }
             .padding(.horizontal, 12)
+            .onChange(of: state.focusSearch) { _, focus in
+                if focus {
+                    isSearchFocused = true
+                    state.focusSearch = false
+                }
+            }
             .padding(.vertical, 9)
             .background(Color.primary.opacity(0.05))
             .clipShape(RoundedRectangle(cornerRadius: 10))

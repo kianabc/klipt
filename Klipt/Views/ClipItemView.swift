@@ -237,6 +237,12 @@ class DragSourceNSView: NSView, NSDraggingSource {
                 return event
             }
 
+            // Let clicks in the top-right corner pass through to the pin button overlay
+            let pinArea = NSRect(x: self.bounds.maxX - 40, y: self.bounds.maxY - 40, width: 40, height: 40)
+            if pinArea.contains(locationInView) {
+                return event
+            }
+
             switch event.type {
             case .leftMouseDown:
                 self.mouseDownPoint = locationInWindow
