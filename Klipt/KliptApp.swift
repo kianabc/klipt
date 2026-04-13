@@ -59,6 +59,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         cleanupTempFiles()
         showOnboardingIfNeeded()
+        checkAccessibilityPermission()
+    }
+
+    private func checkAccessibilityPermission() {
+        // Check after a short delay so the app finishes launching first
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            guard !AXIsProcessTrusted() else { return }
+            let alert = NSAlert()
+            alert.messageText = "Accessibility Permission Required"
+            alert.informativeText = "Klipt needs Accessibility access to paste items with your keyboard shortcut.\n\nGo to System Settings \u{2192} Privacy & Security \u{2192} Accessibility and enable Klipt."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "Open Settings")
+            alert.addButton(withTitle: "Later")
+            let response = alert.runModal()
+            if response == .alertFirstButtonReturn {
+                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
+            }
+        }
     }
 
     private func cleanupTempFiles() {
