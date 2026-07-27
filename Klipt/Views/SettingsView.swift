@@ -8,20 +8,10 @@ struct SettingsView: View {
 
     @State private var recordingShortcut = false
     @State private var showResetConfirmation = false
-    @State private var licenseKeyInput = ""
-
-    private var license: LicenseManager { LicenseManager.shared }
 
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 12) {
-                // Unlock / License
-                if !license.isLicensed {
-                    unlockCard
-                } else {
-                    licensedCard
-                }
-
                 // Shortcut
                 settingsCard {
                     HStack {
@@ -73,32 +63,19 @@ struct SettingsView: View {
                                 .foregroundStyle(.orange)
                         }
                         Spacer()
-                        if license.isLicensed {
-                            Picker("", selection: $settings.expirationDays) {
-                                Text("1 day").tag(1)
-                                Text("3 days").tag(3)
-                                Text("7 days").tag(7)
-                                Text("14 days").tag(14)
-                                Text("30 days").tag(30)
-                            }
-                            .frame(width: 110)
-                        } else {
-                            Text("1 day")
-                                .font(.system(size: 13))
-                                .foregroundStyle(.primary.opacity(0.4))
+                        Picker("", selection: $settings.expirationDays) {
+                            Text("1 day").tag(1)
+                            Text("3 days").tag(3)
+                            Text("7 days").tag(7)
+                            Text("14 days").tag(14)
+                            Text("30 days").tag(30)
                         }
+                        .frame(width: 110)
                     }
-                    if license.isLicensed {
-                        Text("Pinned items never expire.")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.primary.opacity(0.3))
-                            .padding(.leading, 24)
-                    } else {
-                        Text("Unlock to keep history up to 30 days. Pinned items never expire.")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.orange.opacity(0.6))
-                            .padding(.leading, 24)
-                    }
+                    Text("Pinned items never expire.")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.primary.opacity(0.3))
+                        .padding(.leading, 24)
                 }
 
                 // Reset
@@ -216,114 +193,6 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will remove all items except pinned ones.")
-        }
-    }
-
-    // MARK: - Unlock card (not licensed)
-
-    private var unlockCard: some View {
-        settingsCard {
-            VStack(spacing: 12) {
-                HStack(spacing: 10) {
-                    Image(systemName: "lock.open.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.yellow)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Unlock Klipt")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.primary)
-                        Text("Keep clipboard history up to 30 days")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.primary.opacity(0.4))
-                    }
-                    Spacer()
-                    Text("$3")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundStyle(.yellow)
-                }
-
-                // Buy button
-                Button(action: {
-                    // TODO: Replace with your LemonSqueezy checkout URL
-                    if let url = URL(string: "https://kliptapp.lemonsqueezy.com/checkout/buy/0d2fa6e2-796b-4118-9e46-5521fbbe10f4") {
-                        NSWorkspace.shared.open(url)
-                    }
-                }) {
-                    Text("Buy License")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(
-                            LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .buttonStyle(.plain)
-
-                Divider().opacity(0.1)
-
-                // License key input
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Already have a key?")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.primary.opacity(0.35))
-                    HStack(spacing: 8) {
-                        TextField("Enter license key", text: $licenseKeyInput)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 12, design: .monospaced))
-                            .foregroundStyle(.primary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(Color.primary.opacity(0.06))
-                            .clipShape(RoundedRectangle(cornerRadius: 7))
-                        Button(action: {
-                            license.validate(key: licenseKeyInput)
-                        }) {
-                            if license.isValidating {
-                                ProgressView()
-                                    .scaleEffect(0.6)
-                                    .frame(width: 60, height: 28)
-                            } else {
-                                Text("Activate")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundStyle(.primary.opacity(0.7))
-                                    .frame(width: 60, height: 28)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .background(Color.primary.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 7))
-                        .disabled(licenseKeyInput.isEmpty || license.isValidating)
-                    }
-                    if let error = license.validationError {
-                        Text(error)
-                            .font(.system(size: 11))
-                            .foregroundStyle(.red.opacity(0.7))
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: - Licensed card
-
-    private var licensedCard: some View {
-        settingsCard {
-            HStack(spacing: 10) {
-                Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.green)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Klipt Unlocked")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.primary)
-                    Text("Thank you for your support!")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.primary.opacity(0.4))
-                }
-                Spacer()
-            }
         }
     }
 

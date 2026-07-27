@@ -6,6 +6,24 @@
         <description>Updates for Klipt</description>
         <language>en</language>
         <item>
+            <title>Klipt 1.5.0</title>
+            <pubDate>Mon, 27 Jul 2026 00:00:00 +0000</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.5.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>Klipt is now free</h2>
+                <ul>
+                    <li>Clipboard history up to 30 days is unlocked for everyone</li>
+                    <li>Removed license activation and the in-app purchase flow</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/kianabc/klipt/releases/download/v1.5.0/Klipt.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="1w9e1ju5y7u/YZN4zf388wry7u8eV8gBuK1A8yPxEC84u8an3POIo1Jb81ey8DbCcoI7RQqsWXG16Vbe5Xt2DQ=="
+                       length="1841053"/>
+        </item>
+        <item>
             <title>Klipt 1.0.0</title>
             <pubDate>Sat, 08 Mar 2026 00:00:00 +0000</pubDate>
             <sparkle:version>1</sparkle:version>
