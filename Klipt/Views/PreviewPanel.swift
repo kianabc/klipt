@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import AVKit
+import QuickLookUI
 
 class PreviewPanel: NSPanel {
     static let shared = PreviewPanel()
@@ -76,7 +77,8 @@ class PreviewPanel: NSPanel {
             case .audio:
                 size = NSSize(width: min(420, maxW), height: min(260, maxH))
             case .none:
-                size = NSSize(width: min(500, maxW), height: min(400, maxH))
+                // Quick Look renders real content here, so give it room.
+                size = NSSize(width: min(760, maxW), height: min(560, maxH))
             }
         } else {
             size = NSSize(width: min(500, maxW), height: min(400, maxH))
@@ -149,6 +151,30 @@ private enum MediaType {
         if audioExts.contains(ext) { return .audio }
         if videoExts.contains(ext) { return .video }
         return .none
+    }
+}
+
+/// Renders a file's real contents with Quick Look — the same engine behind
+/// Finder's spacebar preview — so images, PDFs and documents all display.
+struct QuickLookPreview: NSViewRepresentable {
+    let url: URL
+
+    func makeNSView(context: Context) -> QLPreviewView {
+        let view = QLPreviewView(frame: .zero, style: .normal) ?? QLPreviewView()
+        view.autostarts = true
+        // We own the lifecycle: close() happens in dismantleNSView instead.
+        view.shouldCloseWithWindow = false
+        view.previewItem = url as NSURL
+        return view
+    }
+
+    func updateNSView(_ nsView: QLPreviewView, context: Context) {
+        guard (nsView.previewItem as? URL) != url else { return }
+        nsView.previewItem = url as NSURL
+    }
+
+    static func dismantleNSView(_ nsView: QLPreviewView, coordinator: ()) {
+        nsView.close()
     }
 }
 
@@ -246,18 +272,12 @@ struct PreviewContentView: View {
                             .frame(height: 50)
                     }
                 case .none:
-                    VStack(spacing: 16) {
-                        Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
-                            .resizable()
-                            .frame(width: 64, height: 64)
-                        Text(item.fileName ?? "File")
-                            .font(.system(size: 16, weight: .medium))
-                        Text(url.path)
-                            .font(.system(size: 12, design: .monospaced))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(3)
-                            .multilineTextAlignment(.center)
-                    }
+                    // Everything that isn't audio/video — images, PDFs, documents.
+                    // Quick Look renders the real contents, matching Finder's
+                    // spacebar behaviour, and falls back to its own placeholder
+                    // for types it can't handle.
+                    QuickLookPreview(url: url)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
         case .text:
