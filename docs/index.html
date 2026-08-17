@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klipt — your Mac's smarter clipboard</title>
+<meta name="description" content="Copy text, screenshots, images and files — they all stay in one place, ready when you need them. Free for macOS.">
+<meta property="og:title" content="Klipt — your Mac's smarter clipboard">
+<meta property="og:description" content="Copy text, screenshots, images and files — they all stay in one place, ready when you need them.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+<style>
+  /* Self-contained on purpose: no CDN, no fonts, no analytics. The page
+     shouldn't phone anywhere the app wouldn't. */
+  :root {
+    --bg: #fbfbfa; --surface: #fff; --line: #e6e4e0;
+    --ink: #171614; --muted: #6b6862; --accent: #6d4aff; --accent-ink: #fff;
+    --code-bg: #f3f2ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #131211; --surface: #1b1a18; --line: #2c2a27;
+      --ink: #f2f0ec; --muted: #a09b93; --accent: #9d86ff; --accent-ink: #1a1917;
+      --code-bg: #232120;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+  a { color: var(--accent); }
+
+  header { padding: 80px 0 56px; text-align: center; }
+  .mark { font-size: 52px; line-height: 1; }
+  h1 { font-size: clamp(38px, 7vw, 56px); margin: 14px 0 10px; letter-spacing: -.025em; }
+  .tagline { font-size: clamp(18px, 3vw, 21px); color: var(--muted); margin: 0 auto; max-width: 32ch; }
+
+  .cta { margin: 36px 0 12px; }
+  .btn {
+    display: inline-block; background: var(--accent); color: var(--accent-ink);
+    padding: 14px 30px; border-radius: 10px; text-decoration: none;
+    font-weight: 600; font-size: 17px;
+  }
+  .btn:hover { filter: brightness(1.07); }
+  .req { color: var(--muted); font-size: 14px; margin-top: 12px; }
+
+  /* The tray is the pitch: one place where everything you copy lands. */
+  .demo {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 22px 24px; margin: 8px 0 0; text-align: left;
+  }
+  .demo .label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
+    color: var(--muted); margin-bottom: 12px;
+  }
+  .tray { display: flex; gap: 10px; flex-wrap: wrap; }
+  .clip {
+    background: var(--code-bg); border: 1px solid var(--line);
+    border-radius: 9px; padding: 10px 13px; font-size: 13px; line-height: 1.4;
+    flex: 1 1 auto; min-width: 0;
+  }
+  .clip .kind {
+    display: block; font-size: 10px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted); margin-bottom: 3px;
+  }
+  .clip.pinned { border-color: var(--accent); }
+
+  section { padding: 44px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 22px; margin: 0 0 20px; letter-spacing: -.012em; }
+  h3 { font-size: 16px; margin: 0 0 5px; }
+  .grid { display: grid; gap: 26px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .grid p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  ol.steps { padding-left: 20px; margin: 0; }
+  ol.steps li { margin-bottom: 10px; }
+  ol.steps li::marker { color: var(--muted); }
+
+  kbd {
+    background: var(--code-bg); border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 5px; padding: 1px 7px; font: 500 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .note { color: var(--muted); font-size: 14px; }
+  footer { padding: 40px 0 64px; text-align: center; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+  footer a { margin: 0 9px; }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="mark">📋</div>
+  <h1>Klipt</h1>
+  <p class="tagline">Your clipboard, but better.</p>
+
+  <div class="cta">
+    <a class="btn" id="download" href="https://github.com/kianabc/klipt/releases/latest">
+      Download for macOS
+    </a>
+    <p class="req" id="req">Free · Requires macOS 14 or later · Apple Silicon &amp; Intel</p>
+  </div>
+
+  <div class="demo">
+    <div class="label">Everything you copy, in one tray</div>
+    <div class="tray">
+      <div class="clip pinned"><span class="kind">📌 Pinned</span>hello@klipt.app</div>
+      <div class="clip"><span class="kind">📷 Screenshot</span>Screen 14.32.png</div>
+      <div class="clip"><span class="kind">📄 File</span>invoice-april.pdf</div>
+      <div class="clip"><span class="kind">✏️ Text</span>1861 S 4650 E, Holladay</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section>
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li>Copy anything, anywhere — text, an image, a screenshot, a file.</li>
+    <li>Press <kbd>⌘⌥V</kbd> to open the tray wherever you are.</li>
+    <li>Pick a clip with the arrow keys and hit <kbd>return</kbd>. It pastes straight in.</li>
+  </ol>
+  <p class="note" style="margin-top:16px">
+    <kbd>space</kbd> previews a clip without leaving the keyboard, <kbd>P</kbd> pins it,
+    <kbd>⌫</kbd> removes it, and typing searches. Double-click a file to open it, or
+    hold <kbd>⌥</kbd> to reveal it in Finder.
+  </p>
+</section>
+
+<section>
+  <h2>What it does</h2>
+  <div class="grid">
+    <div>
+      <h3>Text, images, files</h3>
+      <p>Everything you copy goes into Klipt and stays there — all in one tray, not scattered across apps.</p>
+    </div>
+    <div>
+      <h3>Screenshots, captured</h3>
+      <p>Screenshots land in Klipt instead of cluttering your Desktop.</p>
+    </div>
+    <div>
+      <h3>Pin what matters</h3>
+      <p>Pin the clips you reach for often. Pinned items never expire and stay at the top.</p>
+    </div>
+    <div>
+      <h3>Drag in, drag out</h3>
+      <p>Drag files in to stash them. Drag them out to drop them anywhere. Multiple files stay grouped and move as a batch.</p>
+    </div>
+    <div>
+      <h3>Preview without opening</h3>
+      <p>Press space on any clip for a full Quick Look preview — images, PDFs, documents, video and audio.</p>
+    </div>
+    <div>
+      <h3>Lock on screen</h3>
+      <p>Keep Klipt visible to reference a screenshot or an address while you type in another app.</p>
+    </div>
+    <div>
+      <h3>Search your clips</h3>
+      <p>Find any copied text, file or screenshot instantly. Just start typing.</p>
+    </div>
+    <div>
+      <h3>Keyboard-first</h3>
+      <p>Browse, paste, pin, preview, expand and search without ever touching the mouse.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Your clipboard stays on your Mac</h2>
+  <p>Klipt keeps everything locally. Nothing you copy is uploaded, synced or sent anywhere.</p>
+  <p class="note">
+    No account, no telemetry, nothing collected. History older than your chosen window is
+    deleted automatically — pinned items are the exception, and they stay until you remove them.
+  </p>
+</section>
+
+<section>
+  <h2>Installing</h2>
+  <ol class="steps">
+    <li>Download the <code>.dmg</code> above.</li>
+    <li>Double-click it and drag Klipt to your Applications folder.</li>
+    <li>Open it. Klipt lives in your menu bar, not the Dock.</li>
+    <li>Grant Accessibility access when asked — that's what lets Klipt paste for you.</li>
+  </ol>
+  <p class="note" style="margin-top:16px">
+    Signed and notarised by Apple, so it opens with a single click. No right-click workaround,
+    no security warnings to work around.
+  </p>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <a href="https://github.com/kianabc/klipt">Source</a>·
+  <a href="https://github.com/kianabc/klipt/releases">Changelog</a>·
+  <a href="https://github.com/kianabc/klipt/issues">Report a problem</a>
+  <p style="margin-top:14px">Free for macOS.</p>
+</footer>
+
+<script>
+  // Progressive enhancement only. Without JS the button still points at the
+  // releases page, which always works.
+  fetch('https://api.github.com/repos/kianabc/klipt/releases/latest')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(release => {
+      const dmg = (release.assets || []).find(a => a.name.endsWith('.dmg'));
+      if (dmg) document.getElementById('download').href = dmg.browser_download_url;
+      const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : '';
+      document.getElementById('req').textContent =
+        `${release.tag_name}${size} · Free · Requires macOS 14 or later · Apple Silicon & Intel`;
+    })
+    .catch(() => {});
+</script>
+
+</body>
+</html>

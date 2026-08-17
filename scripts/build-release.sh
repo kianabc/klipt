@@ -24,6 +24,12 @@ ARCHIVE="build/Klipt.xcarchive"
 EXPORT_DIR="build/Release-export"
 APP="$EXPORT_DIR/Klipt.app"
 ZIP="build/Klipt.zip"
+DMG_STAGING="build/dmg-staging"
+SIGN_UPDATE="build/dd/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update"
+
+# Version comes from project.yml so the DMG name matches the release tag.
+MARKETING_VERSION=$(awk -F'"' '/MARKETING_VERSION:/ {print $2; exit}' project.yml)
+DMG="build/Klipt-${MARKETING_VERSION}.dmg"
 
 NOTARIZE=false
 [[ "${1:-}" == "--notarize" ]] && NOTARIZE=true
@@ -108,6 +114,30 @@ if [[ "$NOTARIZE" == true ]]; then
 
     echo "==> Gatekeeper assessment"
     spctl -a -vvv -t exec "$APP"
+
+    # The DMG is what people actually download, so it needs its own ticket —
+    # a notarized app inside an unnotarized disk image still warns on open.
+    echo "==> Building $DMG"
+    rm -rf "$DMG_STAGING" "$DMG"
+    mkdir -p "$DMG_STAGING"
+    cp -R "$APP" "$DMG_STAGING/"
+    ln -s /Applications "$DMG_STAGING/Applications"
+    hdiutil create -volname "Klipt" -srcfolder "$DMG_STAGING" \
+        -ov -format UDZO -quiet "$DMG"
+    rm -rf "$DMG_STAGING"
+
+    echo "==> Notarizing the disk image"
+    xcrun notarytool submit "$DMG" --keychain-profile "$NOTARY_PROFILE" --wait
+    xcrun stapler staple "$DMG"
+    spctl -a -vvv -t open --context context:primary-signature "$DMG"
+
+    echo "==> Signing the appcast enclosure"
+    if [[ -x "$SIGN_UPDATE" ]]; then
+        "$SIGN_UPDATE" "$DMG"
+        echo "    length=$(stat -f%z "$DMG")"
+    else
+        echo "    sign_update not found at $SIGN_UPDATE — run it manually" >&2
+    fi
 else
     echo
     echo "Signed but NOT notarized — Gatekeeper will still block this on other Macs."
@@ -117,3 +147,4 @@ fi
 echo
 echo "Done: $APP"
 echo "      $ZIP"
+[[ -f "$DMG" ]] && echo "      $DMG"
