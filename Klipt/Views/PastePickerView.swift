@@ -250,7 +250,13 @@ struct KliptMainView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.horizontal, item.type == .text ? 20 : 10)
                         .padding(.vertical, item.type == .text ? 14 : 8)
-                        .overlay(DragSourceView(item: item, onSelect: { onConfirm?() }))
+                        .overlay(DragSourceView(
+                            item: item,
+                            onSelect: { onConfirm?() },
+                            onDoubleClick: item.type == .file
+                                ? { reveal in reveal ? item.revealInFinder() : item.openInDefaultApp() }
+                                : nil
+                        ))
                         .overlay(alignment: .topTrailing) {
                             Button(action: { onTogglePin?() }) {
                                 Image(systemName: item.isPinned ? "pin.slash.fill" : "pin.fill")

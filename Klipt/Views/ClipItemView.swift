@@ -65,7 +65,13 @@ struct ClipItemView: View {
         )
         .animation(.easeOut(duration: 0.15), value: isHovered)
         .onHover { isHovered = $0 }
-        .overlay(DragSourceView(item: item, onSelect: onSelect))
+        .overlay(DragSourceView(
+            item: item,
+            onSelect: onSelect,
+            onDoubleClick: item.type == .file
+                ? { reveal in reveal ? item.revealInFinder() : item.openInDefaultApp() }
+                : nil
+        ))
         .contextMenu {
             if item.type == .file {
                 Button {
@@ -187,17 +193,22 @@ struct ClipItemView: View {
 struct DragSourceView: NSViewRepresentable {
     let item: ClipItem
     let onSelect: () -> Void
+    /// Called on double-click. The Bool is true when Option is held (reveal in Finder).
+    /// When nil, single-clicks fire `onSelect` instantly with no double-click handling.
+    var onDoubleClick: ((Bool) -> Void)? = nil
 
     func makeNSView(context: Context) -> DragSourceNSView {
         let view = DragSourceNSView()
         view.item = item
         view.onSelect = onSelect
+        view.onDoubleClick = onDoubleClick
         return view
     }
 
     func updateNSView(_ nsView: DragSourceNSView, context: Context) {
         nsView.item = item
         nsView.onSelect = onSelect
+        nsView.onDoubleClick = onDoubleClick
     }
 }
 
@@ -206,10 +217,12 @@ class DragSourceNSView: NSView, NSDraggingSource {
 
     var item: ClipItem?
     var onSelect: (() -> Void)?
+    var onDoubleClick: ((Bool) -> Void)?
     private var localMouseMonitor: Any?
     private var mouseDownPoint: NSPoint?
     private var didDrag = false
     private var tempDragFile: URL?
+    private var pendingClick: DispatchWorkItem?
 
     override var mouseDownCanMoveWindow: Bool { false }
 
@@ -262,7 +275,27 @@ class DragSourceNSView: NSView, NSDraggingSource {
 
             case .leftMouseUp:
                 if !self.didDrag && self.mouseDownPoint != nil {
-                    self.onSelect?()
+                    if self.onDoubleClick != nil {
+                        if event.clickCount >= 2 {
+                            // Double-click: cancel the deferred single-click and fire the
+                            // double action (Option held → reveal in Finder, else open).
+                            self.pendingClick?.cancel()
+                            self.pendingClick = nil
+                            self.onDoubleClick?(event.modifierFlags.contains(.option))
+                        } else {
+                            // Defer the single-click briefly so a following click can be
+                            // recognized as a double-click instead of pasting immediately.
+                            self.pendingClick?.cancel()
+                            let work = DispatchWorkItem { [weak self] in
+                                self?.onSelect?()
+                                self?.pendingClick = nil
+                            }
+                            self.pendingClick = work
+                            DispatchQueue.main.asyncAfter(deadline: .now() + NSEvent.doubleClickInterval, execute: work)
+                        }
+                    } else {
+                        self.onSelect?()
+                    }
                 }
                 self.mouseDownPoint = nil
                 self.didDrag = false
@@ -275,6 +308,8 @@ class DragSourceNSView: NSView, NSDraggingSource {
     }
 
     private func stopMonitor() {
+        pendingClick?.cancel()
+        pendingClick = nil
         if let monitor = localMouseMonitor {
             NSEvent.removeMonitor(monitor)
             localMouseMonitor = nil

@@ -150,6 +150,16 @@ struct ClipItem: Identifiable, Codable, Equatable {
         return body(url)
     }
 
+    /// Open this file item in its default application (e.g. a PDF in Preview).
+    func openInDefaultApp() {
+        _ = withSecurityScopedAccess { NSWorkspace.shared.open($0) }
+    }
+
+    /// Reveal this file item in Finder, selected in its enclosing folder.
+    func revealInFinder() {
+        withSecurityScopedAccess { NSWorkspace.shared.activateFileViewerSelecting([$0]) }
+    }
+
     /// URL of the image file on disk (if stored as a file)
     var imageFileURL: URL? {
         guard let path = imageFilePath else { return nil }
