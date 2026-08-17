@@ -49,6 +49,10 @@ xcodegen generate
 # source a build came from; -dirty means it had uncommitted changes.
 BUILD_NUMBER=$(git rev-list --count HEAD)
 GIT_REVISION=$(git rev-parse --short HEAD)
+# xcodegen rewrites project.pbxproj above, which bumps its mtime even when the
+# contents are unchanged. diff-index trusts stat info before content, so refresh
+# the index first or every release build looks dirty.
+git update-index -q --refresh || true
 if ! git diff-index --quiet HEAD -- 2>/dev/null; then
     GIT_REVISION="${GIT_REVISION}-dirty"
 fi
