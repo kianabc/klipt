@@ -38,6 +38,16 @@ fi
 echo "==> Regenerating Xcode project"
 xcodegen generate
 
+# Build number is the commit count: monotonically increasing, which is what
+# Sparkle compares to decide an update is newer. The revision pins the exact
+# source a build came from; -dirty means it had uncommitted changes.
+BUILD_NUMBER=$(git rev-list --count HEAD)
+GIT_REVISION=$(git rev-parse --short HEAD)
+if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+    GIT_REVISION="${GIT_REVISION}-dirty"
+fi
+echo "==> Build $BUILD_NUMBER ($GIT_REVISION)"
+
 echo "==> Archiving (Release)"
 rm -rf "$ARCHIVE" "$EXPORT_DIR"
 xcodebuild archive \
@@ -45,7 +55,9 @@ xcodebuild archive \
     -scheme Klipt \
     -configuration Release \
     -archivePath "$ARCHIVE" \
-    -derivedDataPath build/dd
+    -derivedDataPath build/dd \
+    CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+    KLIPT_GIT_REVISION="$GIT_REVISION"
 
 echo "==> Exporting with Developer ID"
 xcodebuild -exportArchive \

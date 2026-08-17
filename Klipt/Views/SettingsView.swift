@@ -146,9 +146,10 @@ struct SettingsView: View {
                                 Text("Klipt")
                                     .font(.system(size: 15, weight: .bold))
                                     .foregroundStyle(.primary)
-                                Text("v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")")
+                                Text(Bundle.main.kliptVersionString)
                                     .font(.system(size: 11, design: .rounded))
                                     .foregroundStyle(.primary.opacity(0.35))
+                                    .textSelection(.enabled)
                             }
                             Spacer()
                         }
@@ -253,5 +254,17 @@ class ShortcutRecorderNSView: NSView {
         if carbonMods != 0 {
             onRecord?(UInt32(event.keyCode), carbonMods)
         }
+    }
+}
+
+extension Bundle {
+    /// "v1.5.0 (312 · a1b2c3d)" — marketing version, build number and the git
+    /// revision it was built from, so any two builds can be told apart.
+    var kliptVersionString: String {
+        let short = infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = infoDictionary?["CFBundleVersion"] as? String ?? "0"
+        let revision = infoDictionary?["KliptGitRevision"] as? String ?? ""
+        let detail = revision.isEmpty ? build : "\(build) · \(revision)"
+        return "v\(short) (\(detail))"
     }
 }

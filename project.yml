@@ -14,6 +14,9 @@ settings:
     SWIFT_VERSION: "5.9"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     DEVELOPMENT_TEAM: 7CMPG6N65Y
+    # Both are overridden per-build by scripts/build-release.sh. "dev" marks a
+    # plain Xcode build that didn't go through the release script.
+    KLIPT_GIT_REVISION: dev
 
 packages:
   Sparkle:
