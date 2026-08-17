@@ -6,6 +6,26 @@
         <description>Updates for Klipt</description>
         <language>en</language>
         <item>
+            <title>Klipt 1.6.0</title>
+            <pubDate>Mon, 17 Aug 2026 00:00:00 +0000</pubDate>
+            <sparkle:version>22</sparkle:version>
+            <sparkle:shortVersionString>1.6.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>Preview anything, open anything</h2>
+                <ul>
+                    <li>Press space on a file to see a full Quick Look preview — images, PDFs and documents now render instead of showing a generic icon</li>
+                    <li>Double-click a file clip to open it, or hold Option to reveal it in Finder</li>
+                    <li>Klipt is now signed and notarised by Apple, so it opens with a single click</li>
+                    <li>Settings shows the exact build you are running</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/kianabc/klipt/releases/download/v1.6.0/Klipt-1.6.0.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="dZHdIGoUTlk/s3uXXRTngm5bBplkQ1ZvPjViYWcdjML6jFdc9VlnD8VLLj03uIlAdsVltz3aiNasSUGaJyYeDA=="
+                       length="2040341"/>
+        </item>
+        <item>
             <title>Klipt 1.5.0</title>
             <pubDate>Mon, 27 Jul 2026 00:00:00 +0000</pubDate>
             <sparkle:version>2</sparkle:version>
