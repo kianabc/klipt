@@ -142,128 +142,6 @@
             opacity: 0.4;
         }
 
-        /* Features */
-        .features {
-            padding: 60px 0 80px;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .feature {
-            padding: 24px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .feature-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            margin-bottom: 14px;
-        }
-
-        .feature-icon.blue { background: rgba(59, 130, 246, 0.15); }
-        .feature-icon.purple { background: rgba(139, 92, 246, 0.15); }
-        .feature-icon.orange { background: rgba(245, 158, 11, 0.15); }
-        .feature-icon.green { background: rgba(34, 197, 94, 0.15); }
-
-        .feature h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .feature p {
-            font-size: 13px;
-            color: var(--text-dim);
-            line-height: 1.5;
-        }
-
-        /* Install guide */
-        .install {
-            padding: 0 0 80px;
-        }
-
-        .install h2 {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-
-        .install .lead {
-            font-size: 14px;
-            color: var(--text-dim);
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-
-        .steps {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .step {
-            display: flex;
-            gap: 16px;
-            padding: 18px 20px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .step-num {
-            flex-shrink: 0;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: rgba(139, 92, 246, 0.15);
-            color: var(--purple-light);
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .step-content h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .step-content p {
-            font-size: 13px;
-            color: var(--text-dim);
-            line-height: 1.5;
-        }
-
-        .step-content code {
-            font-size: 12px;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: var(--purple-light);
-        }
-
-        .install-note {
-            margin-top: 16px;
-            font-size: 12px;
-            color: var(--text-dim);
-            opacity: 0.7;
-            line-height: 1.5;
-        }
-
         /* Footer */
         footer {
             text-align: center;
@@ -272,7 +150,6 @@
             font-size: 13px;
             color: var(--text-dim);
         }
-
 
         /* Hero preview — show the tray itself, not just describe it */
         .hero-preview {
@@ -369,9 +246,6 @@
         }
 
         @media (max-width: 540px) {
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
             .hero {
                 padding: 60px 0 40px;
             }
@@ -438,90 +312,12 @@
             </div>
         </section>
 
-        <section class="features">
-            <div class="feature-grid">
-                <div class="feature">
-                    <div class="feature-icon blue">&#128196;</div>
-                    <h3>Text, images, files</h3>
-                    <p>Everything you copy goes into Klipt. Text, images, files — all in one tray.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon purple">&#128247;</div>
-                    <h3>Screenshots, captured</h3>
-                    <p>Screenshots go straight to Klipt instead of cluttering your Desktop.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon orange">&#128204;</div>
-                    <h3>Pin what you paste over and over</h3>
-                    <p>An address, a wallet ID, a signature block. Pin it once and it stays at the top, ready to paste again and again. Pinned clips never expire.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon green">&#128260;</div>
-                    <h3>Drag in, drag out</h3>
-                    <p>Drag files onto the tray to stash them, then drag them back out into any app or folder. No temp folder on your Desktop.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon purple">&#128065;</div>
-                    <h3>Preview without opening</h3>
-                    <p>Press space on a clip for a full Quick Look preview. Double-click a file to open it, or hold Option to reveal it in Finder.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon blue">&#128269;</div>
-                    <h3>Search your clips</h3>
-                    <p>Find any copied text, file, or screenshot instantly with built-in search.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon orange">&#128274;</div>
-                    <h3>Lock on screen</h3>
-                    <p>Lock Klipt on screen to reference a screenshot or address while typing in another app.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon purple">&#128450;</div>
-                    <h3>Keep a batch together</h3>
-                    <p>Drop multiple files at once. They stay grouped together and drag out as a batch.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon green">&#9000;</div>
-                    <h3>Keyboard-first</h3>
-                    <p>Browse, paste, pin, expand, and search — all without touching the mouse.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="install" id="install">
-            <h2>Getting started</h2>
-            <p class="lead">Klipt is signed and notarised by Apple, so it opens with a single click.</p>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-num">1</div>
-                    <div class="step-content">
-                        <h3>Download and move to Applications</h3>
-                        <p>Download the DMG above, open it, and drag Klipt into your Applications folder.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-num">2</div>
-                    <div class="step-content">
-                        <h3>Grant Accessibility permission</h3>
-                        <p>Klipt needs Accessibility access to paste items with your keyboard shortcut. Go to <strong>System Settings &rarr; Privacy &amp; Security &rarr; Accessibility</strong> and enable Klipt.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-num">3</div>
-                    <div class="step-content">
-                        <h3>You're set</h3>
-                        <p>Klipt lives in your menu bar. Press <code>&#8984;&#8997;V</code> to open it anytime. Everything you copy is automatically saved.</p>
-                    </div>
-                </div>
-            </div>
-            <p class="install-note">Klipt keeps everything on your Mac &mdash; no account, no telemetry, nothing uploaded. Updates arrive automatically.</p>
-        </section>
-
+        
+        
         <footer>
             &copy; 2026 Klipt. Built for Mac.
         </footer>
     </div>
-
 
     <script>
       fetch('https://api.github.com/repos/kianabc/klipt/releases/latest')
