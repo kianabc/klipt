@@ -245,6 +245,40 @@
             color: var(--text-dim);
         }
 
+        /* Spotlight — the screenshot story deserves its own beat */
+        .spotlight {
+            padding: 0 0 70px;
+        }
+
+        .spotlight-card {
+            padding: 34px 28px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.10), rgba(59, 130, 246, 0.05));
+            border: 1px solid rgba(139, 92, 246, 0.18);
+            text-align: center;
+        }
+
+        .spotlight-card .glyph {
+            font-size: 26px;
+            line-height: 1;
+            margin-bottom: 14px;
+        }
+
+        .spotlight-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            margin-bottom: 10px;
+        }
+
+        .spotlight-card p {
+            font-size: 14px;
+            color: var(--text-dim);
+            line-height: 1.6;
+            max-width: 470px;
+            margin: 0 auto;
+        }
+
         @media (max-width: 540px) {
             .hero {
                 padding: 60px 0 40px;
@@ -289,7 +323,7 @@
                 <div class="flow-step">
                     <div class="glyph">&#11015;&#65039;</div>
                     <h3>Drop it in</h3>
-                    <p>Copy it, or drag it straight onto the tray. Files, screenshots, audio, images, links, text &mdash; anything.</p>
+                    <p>Copy it, or drag it straight onto the tray. Screenshots land there on their own. Files, audio, images, links, text &mdash; anything.</p>
                 </div>
                 <div class="flow-step">
                     <div class="glyph">&#128230;</div>
@@ -309,6 +343,14 @@
                 <span class="kind-chip">&#128444;&#65039; Images</span>
                 <span class="kind-chip">&#128279; Links</span>
                 <span class="kind-chip">&#9999;&#65039; Text</span>
+            </div>
+        </section>
+
+        <section class="spotlight">
+            <div class="spotlight-card">
+                <div class="glyph">&#128247;</div>
+                <h2>Stop losing screenshots on your Desktop</h2>
+                <p>Every screenshot you take drops straight into the tray instead of piling up on your Desktop. It is still there an hour later when you actually need it, and it clears itself out when you don't.</p>
             </div>
         </section>
 
