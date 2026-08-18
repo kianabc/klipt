@@ -1,217 +1,412 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Klipt — your Mac's smarter clipboard</title>
-<meta name="description" content="Copy text, screenshots, images and files — they all stay in one place, ready when you need them. Free for macOS.">
-<meta property="og:title" content="Klipt — your Mac's smarter clipboard">
-<meta property="og:description" content="Copy text, screenshots, images and files — they all stay in one place, ready when you need them.">
-<meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
-<style>
-  /* Self-contained on purpose: no CDN, no fonts, no analytics. The page
-     shouldn't phone anywhere the app wouldn't. */
-  :root {
-    --bg: #fbfbfa; --surface: #fff; --line: #e6e4e0;
-    --ink: #171614; --muted: #6b6862; --accent: #6d4aff; --accent-ink: #fff;
-    --code-bg: #f3f2ef;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #131211; --surface: #1b1a18; --line: #2c2a27;
-      --ink: #f2f0ec; --muted: #a09b93; --accent: #9d86ff; --accent-ink: #1a1917;
-      --code-bg: #232120;
-    }
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
-  a { color: var(--accent); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klipt — Your Mac's smarter clipboard</title>
+    <meta name="description" content="Klipt replaces your Mac's clipboard. Copy text, images, screenshots, and files — they all stay in one place, ready when you need them.">
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  header { padding: 80px 0 56px; text-align: center; }
-  .mark { font-size: 52px; line-height: 1; }
-  h1 { font-size: clamp(38px, 7vw, 56px); margin: 14px 0 10px; letter-spacing: -.025em; }
-  .tagline { font-size: clamp(18px, 3vw, 21px); color: var(--muted); margin: 0 auto; max-width: 32ch; }
+        :root {
+            --purple-deep: #261a59;
+            --purple-mid: #5a2d8e;
+            --purple-light: #8b5cf6;
+            --blue: #3b82f6;
+            --orange: #f59e0b;
+            --bg: #0a0a0f;
+            --text: #f0f0f5;
+            --text-dim: #8888a0;
+        }
 
-  .cta { margin: 36px 0 12px; }
-  .btn {
-    display: inline-block; background: var(--accent); color: var(--accent-ink);
-    padding: 14px 30px; border-radius: 10px; text-decoration: none;
-    font-weight: 600; font-size: 17px;
-  }
-  .btn:hover { filter: brightness(1.07); }
-  .req { color: var(--muted); font-size: 14px; margin-top: 12px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-  /* The tray is the pitch: one place where everything you copy lands. */
-  .demo {
-    background: var(--surface); border: 1px solid var(--line);
-    border-radius: 14px; padding: 22px 24px; margin: 8px 0 0; text-align: left;
-  }
-  .demo .label {
-    font-size: 11px; text-transform: uppercase; letter-spacing: .09em;
-    color: var(--muted); margin-bottom: 12px;
-  }
-  .tray { display: flex; gap: 10px; flex-wrap: wrap; }
-  .clip {
-    background: var(--code-bg); border: 1px solid var(--line);
-    border-radius: 9px; padding: 10px 13px; font-size: 13px; line-height: 1.4;
-    flex: 1 1 auto; min-width: 0;
-  }
-  .clip .kind {
-    display: block; font-size: 10px; text-transform: uppercase;
-    letter-spacing: .08em; color: var(--muted); margin-bottom: 3px;
-  }
-  .clip.pinned { border-color: var(--accent); }
+        .gradient-bg {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(91, 45, 142, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 60%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            z-index: -1;
+        }
 
-  section { padding: 44px 0; border-top: 1px solid var(--line); }
-  h2 { font-size: 22px; margin: 0 0 20px; letter-spacing: -.012em; }
-  h3 { font-size: 16px; margin: 0 0 5px; }
-  .grid { display: grid; gap: 26px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-  .grid p { margin: 0; color: var(--muted); font-size: 15px; }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
 
-  ol.steps { padding-left: 20px; margin: 0; }
-  ol.steps li { margin-bottom: 10px; }
-  ol.steps li::marker { color: var(--muted); }
+        /* Nav */
+        nav {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-  kbd {
-    background: var(--code-bg); border: 1px solid var(--line); border-bottom-width: 2px;
-    border-radius: 5px; padding: 1px 7px; font: 500 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
-  }
-  .note { color: var(--muted); font-size: 14px; }
-  footer { padding: 40px 0 64px; text-align: center; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
-  footer a { margin: 0 9px; }
-</style>
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text);
+        }
+
+        .logo span {
+            color: var(--purple-light);
+        }
+
+        .version-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple-light);
+            font-weight: 500;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 100px 0 60px;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 .accent {
+            background: linear-gradient(135deg, var(--purple-light), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-dim);
+            max-width: 480px;
+            margin: 0 auto 48px;
+            line-height: 1.6;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            background: linear-gradient(135deg, var(--purple-mid), var(--purple-light));
+            color: white;
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 24px rgba(139, 92, 246, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
+        }
+
+        .download-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .download-meta {
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        .download-meta span {
+            margin: 0 6px;
+            opacity: 0.4;
+        }
+
+        /* Features */
+        .features {
+            padding: 60px 0 80px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .feature {
+            padding: 24px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
+
+        .feature-icon.blue { background: rgba(59, 130, 246, 0.15); }
+        .feature-icon.purple { background: rgba(139, 92, 246, 0.15); }
+        .feature-icon.orange { background: rgba(245, 158, 11, 0.15); }
+        .feature-icon.green { background: rgba(34, 197, 94, 0.15); }
+
+        .feature h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .feature p {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* Install guide */
+        .install {
+            padding: 0 0 80px;
+        }
+
+        .install h2 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .install .lead {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            padding: 18px 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple-light);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .step-content code {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--purple-light);
+        }
+
+        .install-note {
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--text-dim);
+            opacity: 0.7;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        @media (max-width: 540px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero {
+                padding: 60px 0 40px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="gradient-bg"></div>
+    <div class="container">
+        <nav>
+            <div class="logo">klipt<span>.</span></div>
+            <div class="version-badge" id="version-badge">v1.6 for macOS</div>
+        </nav>
 
-<header class="wrap">
-  <div class="mark">📋</div>
-  <h1>Klipt</h1>
-  <p class="tagline">Your clipboard, but better.</p>
+        <section class="hero">
+            <h1>Your clipboard,<br><span class="accent">but better.</span></h1>
+            <p>Klipt replaces your Mac's clipboard. Copy text, screenshots, images, and files — they all stay in one place, ready when you need them.</p>
+            <a href="https://github.com/kianabc/klipt/releases/download/v1.6.0/Klipt-1.6.0.dmg" class="download-btn" id="download">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download for Mac
+            </a>
+            <div class="download-meta" id="download-meta">
+                macOS 14+ <span>&middot;</span> Apple Silicon & Intel <span>&middot;</span> Free
+            </div>
+        </section>
 
-  <div class="cta">
-    <a class="btn" id="download" href="https://github.com/kianabc/klipt/releases/latest">
-      Download for macOS
-    </a>
-    <p class="req" id="req">Free · Requires macOS 14 or later · Apple Silicon &amp; Intel</p>
-  </div>
+        <section class="features">
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="feature-icon blue">&#128196;</div>
+                    <h3>Text, images, files</h3>
+                    <p>Everything you copy goes into Klipt. Text, images, files — all in one tray.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon purple">&#128247;</div>
+                    <h3>Screenshots, captured</h3>
+                    <p>Screenshots go straight to Klipt instead of cluttering your Desktop.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon orange">&#128204;</div>
+                    <h3>Pin what matters</h3>
+                    <p>Pin items you use often. Pinned clips never expire and are always at the top.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon green">&#128260;</div>
+                    <h3>Drag in, drag out</h3>
+                    <p>Drag files into Klipt to stash them. Drag out of Klipt to place them anywhere.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon purple">&#128065;</div>
+                    <h3>Preview without opening</h3>
+                    <p>Press space on a clip for a full Quick Look preview. Double-click a file to open it, or hold Option to reveal it in Finder.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon blue">&#128269;</div>
+                    <h3>Search your clips</h3>
+                    <p>Find any copied text, file, or screenshot instantly with built-in search.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon orange">&#128274;</div>
+                    <h3>Lock on screen</h3>
+                    <p>Lock Klipt on screen to reference a screenshot or address while typing in another app.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon purple">&#128450;</div>
+                    <h3>File groups</h3>
+                    <p>Drop multiple files at once. They stay grouped together and drag out as a batch.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon green">&#9000;</div>
+                    <h3>Keyboard-first</h3>
+                    <p>Browse, paste, pin, expand, and search — all without touching the mouse.</p>
+                </div>
+            </div>
+        </section>
 
-  <div class="demo">
-    <div class="label">Everything you copy, in one tray</div>
-    <div class="tray">
-      <div class="clip pinned"><span class="kind">📌 Pinned</span>hello@klipt.app</div>
-      <div class="clip"><span class="kind">📷 Screenshot</span>Screen 14.32.png</div>
-      <div class="clip"><span class="kind">📄 File</span>invoice-april.pdf</div>
-      <div class="clip"><span class="kind">✏️ Text</span>1861 S 4650 E, Holladay</div>
+        <section class="install" id="install">
+            <h2>Getting started</h2>
+            <p class="lead">Klipt is signed and notarised by Apple, so it opens with a single click.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h3>Download and move to Applications</h3>
+                        <p>Download the DMG above, open it, and drag Klipt into your Applications folder.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h3>Grant Accessibility permission</h3>
+                        <p>Klipt needs Accessibility access to paste items with your keyboard shortcut. Go to <strong>System Settings &rarr; Privacy &amp; Security &rarr; Accessibility</strong> and enable Klipt.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h3>You're set</h3>
+                        <p>Klipt lives in your menu bar. Press <code>&#8984;&#8997;V</code> to open it anytime. Everything you copy is automatically saved.</p>
+                    </div>
+                </div>
+            </div>
+            <p class="install-note">Klipt keeps everything on your Mac &mdash; no account, no telemetry, nothing uploaded. Updates arrive automatically.</p>
+        </section>
+
+        <footer>
+            &copy; 2026 Klipt. Built for Mac.
+        </footer>
     </div>
-  </div>
-</header>
 
-<main class="wrap">
 
-<section>
-  <h2>How it works</h2>
-  <ol class="steps">
-    <li>Copy anything, anywhere — text, an image, a screenshot, a file.</li>
-    <li>Press <kbd>⌘⌥V</kbd> to open the tray wherever you are.</li>
-    <li>Pick a clip with the arrow keys and hit <kbd>return</kbd>. It pastes straight in.</li>
-  </ol>
-  <p class="note" style="margin-top:16px">
-    <kbd>space</kbd> previews a clip without leaving the keyboard, <kbd>P</kbd> pins it,
-    <kbd>⌫</kbd> removes it, and typing searches. Double-click a file to open it, or
-    hold <kbd>⌥</kbd> to reveal it in Finder.
-  </p>
-</section>
-
-<section>
-  <h2>What it does</h2>
-  <div class="grid">
-    <div>
-      <h3>Text, images, files</h3>
-      <p>Everything you copy goes into Klipt and stays there — all in one tray, not scattered across apps.</p>
-    </div>
-    <div>
-      <h3>Screenshots, captured</h3>
-      <p>Screenshots land in Klipt instead of cluttering your Desktop.</p>
-    </div>
-    <div>
-      <h3>Pin what matters</h3>
-      <p>Pin the clips you reach for often. Pinned items never expire and stay at the top.</p>
-    </div>
-    <div>
-      <h3>Drag in, drag out</h3>
-      <p>Drag files in to stash them. Drag them out to drop them anywhere. Multiple files stay grouped and move as a batch.</p>
-    </div>
-    <div>
-      <h3>Preview without opening</h3>
-      <p>Press space on any clip for a full Quick Look preview — images, PDFs, documents, video and audio.</p>
-    </div>
-    <div>
-      <h3>Lock on screen</h3>
-      <p>Keep Klipt visible to reference a screenshot or an address while you type in another app.</p>
-    </div>
-    <div>
-      <h3>Search your clips</h3>
-      <p>Find any copied text, file or screenshot instantly. Just start typing.</p>
-    </div>
-    <div>
-      <h3>Keyboard-first</h3>
-      <p>Browse, paste, pin, preview, expand and search without ever touching the mouse.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <h2>Your clipboard stays on your Mac</h2>
-  <p>Klipt keeps everything locally. Nothing you copy is uploaded, synced or sent anywhere.</p>
-  <p class="note">
-    No account, no telemetry, nothing collected. History older than your chosen window is
-    deleted automatically — pinned items are the exception, and they stay until you remove them.
-  </p>
-</section>
-
-<section>
-  <h2>Installing</h2>
-  <ol class="steps">
-    <li>Download the <code>.dmg</code> above.</li>
-    <li>Double-click it and drag Klipt to your Applications folder.</li>
-    <li>Open it. Klipt lives in your menu bar, not the Dock.</li>
-    <li>Grant Accessibility access when asked — that's what lets Klipt paste for you.</li>
-  </ol>
-  <p class="note" style="margin-top:16px">
-    Signed and notarised by Apple, so it opens with a single click. No right-click workaround,
-    no security warnings to work around.
-  </p>
-</section>
-
-</main>
-
-<footer class="wrap">
-  <a href="https://github.com/kianabc/klipt">Source</a>·
-  <a href="https://github.com/kianabc/klipt/releases">Changelog</a>·
-  <a href="https://github.com/kianabc/klipt/issues">Report a problem</a>
-  <p style="margin-top:14px">Free for macOS.</p>
-</footer>
-
-<script>
-  // Progressive enhancement only. Without JS the button still points at the
-  // releases page, which always works.
-  fetch('https://api.github.com/repos/kianabc/klipt/releases/latest')
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(release => {
-      const dmg = (release.assets || []).find(a => a.name.endsWith('.dmg'));
-      if (dmg) document.getElementById('download').href = dmg.browser_download_url;
-      const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : '';
-      document.getElementById('req').textContent =
-        `${release.tag_name}${size} · Free · Requires macOS 14 or later · Apple Silicon & Intel`;
-    })
-    .catch(() => {});
-</script>
-
+    <script>
+      fetch('https://api.github.com/repos/kianabc/klipt/releases/latest')
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(release => {
+          const dmg = (release.assets || []).find(a => a.name.endsWith('.dmg'));
+          if (dmg) document.getElementById('download').href = dmg.browser_download_url;
+          const short = (release.tag_name || '').replace(/^v/, '').split('.').slice(0, 2).join('.');
+          if (short) document.getElementById('version-badge').textContent = `v${short} for macOS`;
+          if (dmg) {
+            document.getElementById('download-meta').innerHTML =
+              `macOS 14+ <span>&middot;</span> Apple Silicon &amp; Intel <span>&middot;</span> Free ` +
+              `<span>&middot;</span> ${(dmg.size / 1048576).toFixed(1)} MB`;
+          }
+        })
+        .catch(() => {});
+    </script>
 </body>
 </html>
