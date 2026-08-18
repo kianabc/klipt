@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klipt — Your Mac's smarter clipboard</title>
-    <meta name="description" content="Klipt replaces your Mac's clipboard. Copy text, images, screenshots, and files — they all stay in one place, ready when you need them.">
+    <title>Klipt — a tray for everything you copy</title>
+    <meta name="description" content="A tray that sits on your Mac. Drop in files, screenshots, audio and text, then pull them out wherever you need them. Pin the ones you paste constantly.">
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         * {
@@ -273,12 +273,110 @@
             color: var(--text-dim);
         }
 
+
+        /* Hero preview — show the tray itself, not just describe it */
+        .hero-preview {
+            margin: 52px auto 0;
+            max-width: 440px;
+        }
+
+        .hero-preview img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 16px;
+            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+        }
+
+        /* Drop in / hold / pull out */
+        .flow {
+            padding: 20px 0 70px;
+        }
+
+        .flow h2 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .flow .lead {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin: 0 auto 28px;
+            max-width: 420px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .flow-step {
+            padding: 26px 22px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: center;
+        }
+
+        .flow-step .glyph {
+            font-size: 24px;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        .flow-step h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .flow-step p {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .flow-step code {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--purple-light);
+            white-space: nowrap;
+        }
+
+        .flow-kinds {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .kind-chip {
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            color: var(--text-dim);
+        }
+
         @media (max-width: 540px) {
             .feature-grid {
                 grid-template-columns: 1fr;
             }
             .hero {
                 padding: 60px 0 40px;
+            }
+            .flow-steps {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -292,8 +390,8 @@
         </nav>
 
         <section class="hero">
-            <h1>Your clipboard,<br><span class="accent">but better.</span></h1>
-            <p>Klipt replaces your Mac's clipboard. Copy text, screenshots, images, and files — they all stay in one place, ready when you need them.</p>
+            <h1>Drop it in.<br><span class="accent">Grab it anywhere.</span></h1>
+            <p>Klipt is a tray that sits on your Mac. Drop in files, screenshots, audio, images and text &mdash; then pull them back out wherever you need them.</p>
             <a href="https://github.com/kianabc/klipt/releases/download/v1.6.0/Klipt-1.6.0.dmg" class="download-btn" id="download">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -304,6 +402,39 @@
             </a>
             <div class="download-meta" id="download-meta">
                 macOS 14+ <span>&middot;</span> Apple Silicon & Intel <span>&middot;</span> Free
+            </div>
+            <div class="hero-preview">
+                <img src="app-preview.svg" alt="The Klipt tray holding a note, a screenshot, a link and a PDF" width="480" height="360">
+            </div>
+        </section>
+
+        <section class="flow">
+            <h2>One tray, everything in it</h2>
+            <p class="lead">Copying one thing at a time means losing the last thing you copied. Klipt just keeps them.</p>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="glyph">&#11015;&#65039;</div>
+                    <h3>Drop it in</h3>
+                    <p>Copy it, or drag it straight onto the tray. Files, screenshots, audio, images, links, text &mdash; anything.</p>
+                </div>
+                <div class="flow-step">
+                    <div class="glyph">&#128230;</div>
+                    <h3>It stays put</h3>
+                    <p>Everything waits together, whatever the type. Drop a batch of files and they stay grouped.</p>
+                </div>
+                <div class="flow-step">
+                    <div class="glyph">&#11014;&#65039;</div>
+                    <h3>Pull it out</h3>
+                    <p>Press <code>&#8984;&#8997;V</code> in any app and paste, or drag it back out into a folder, an email, a chat.</p>
+                </div>
+            </div>
+            <div class="flow-kinds">
+                <span class="kind-chip">&#128196; Files</span>
+                <span class="kind-chip">&#128247; Screenshots</span>
+                <span class="kind-chip">&#127911; Audio</span>
+                <span class="kind-chip">&#128444;&#65039; Images</span>
+                <span class="kind-chip">&#128279; Links</span>
+                <span class="kind-chip">&#9999;&#65039; Text</span>
             </div>
         </section>
 
@@ -321,13 +452,13 @@
                 </div>
                 <div class="feature">
                     <div class="feature-icon orange">&#128204;</div>
-                    <h3>Pin what matters</h3>
-                    <p>Pin items you use often. Pinned clips never expire and are always at the top.</p>
+                    <h3>Pin what you paste over and over</h3>
+                    <p>An address, a wallet ID, a signature block. Pin it once and it stays at the top, ready to paste again and again. Pinned clips never expire.</p>
                 </div>
                 <div class="feature">
                     <div class="feature-icon green">&#128260;</div>
                     <h3>Drag in, drag out</h3>
-                    <p>Drag files into Klipt to stash them. Drag out of Klipt to place them anywhere.</p>
+                    <p>Drag files onto the tray to stash them, then drag them back out into any app or folder. No temp folder on your Desktop.</p>
                 </div>
                 <div class="feature">
                     <div class="feature-icon purple">&#128065;</div>
@@ -346,7 +477,7 @@
                 </div>
                 <div class="feature">
                     <div class="feature-icon purple">&#128450;</div>
-                    <h3>File groups</h3>
+                    <h3>Keep a batch together</h3>
                     <p>Drop multiple files at once. They stay grouped together and drag out as a batch.</p>
                 </div>
                 <div class="feature">
