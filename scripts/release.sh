@@ -51,7 +51,14 @@ echo "$VERSION" > VERSION
 # have to agree or the bundle ships a version the tag disagrees with.
 /usr/bin/sed -i '' "s/^    MARKETING_VERSION: .*/    MARKETING_VERSION: \"$VERSION\"/" project.yml
 
-git add VERSION CHANGELOG.md project.yml
+# Regenerate so the committed project carries the new version too. Without
+# this, build-release.sh runs xcodegen, picks up the bump, and every release
+# build is stamped -dirty by its own version change.
+if command -v xcodegen >/dev/null 2>&1; then
+    xcodegen generate >/dev/null
+fi
+
+git add VERSION CHANGELOG.md project.yml Klipt.xcodeproj/project.pbxproj
 # Both are often bumped as part of the feature commit, in which case there is
 # nothing left to commit here — that's fine, not an error.
 if git diff --cached --quiet; then
