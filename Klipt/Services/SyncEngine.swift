@@ -100,7 +100,10 @@ final class SyncEngine {
     private func record(from item: ClipItem) -> CKRecord {
         let id = CKRecord.ID(recordName: item.id.uuidString, zoneID: zoneID)
         let record = CKRecord(recordType: Self.recordType, recordID: id)
-        record["text"] = item.textContent
+        // text is an Encrypted String in the schema — end-to-end encrypted,
+        // so not even Apple can read a clip. Plain subscripting would not
+        // write it and it would read back nil.
+        record.encryptedValues["text"] = item.textContent
         record["createdAt"] = item.createdAt
         record["pinned"] = item.isPinned ? 1 : 0
         record["device"] = Self.deviceName
@@ -147,7 +150,7 @@ final class SyncEngine {
     }
 
     private static func item(from record: CKRecord) -> ClipItem? {
-        guard let text = record["text"] as? String,
+        guard let text = record.encryptedValues["text"] as? String,
               let uuid = UUID(uuidString: record.recordID.recordName) else { return nil }
         return ClipItem(syncedText: text,
                         id: uuid,

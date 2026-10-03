@@ -38,7 +38,7 @@ enum SyncTest {
                 let recordID = CKRecord.ID(recordName: uuid.uuidString, zoneID: zoneID)
                 let record = CKRecord(recordType: "Clip", recordID: recordID)
                 let marker = "klipt sync test \(Int(Date().timeIntervalSince1970))"
-                record["text"] = marker
+                record.encryptedValues["text"] = marker
                 record["createdAt"] = Date()
                 record["pinned"] = 0
                 record["device"] = SyncEngine.deviceName
@@ -67,7 +67,7 @@ enum SyncTest {
                 }
 
                 let fetched = try await database.record(for: recordID)
-                guard fetched["text"] as? String == marker else {
+                guard fetched.encryptedValues["text"] as? String == marker else {
                     print("\nFAILED — read back something other than what was written")
                     exit(1)
                 }
