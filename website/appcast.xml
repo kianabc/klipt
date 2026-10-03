@@ -6,6 +6,27 @@
         <description>Updates for Klipt</description>
         <language>en</language>
         <item>
+            <title>Klipt 1.7.0</title>
+            <pubDate>Fri, 03 Oct 2026 00:00:00 +0000</pubDate>
+            <sparkle:version>34</sparkle:version>
+            <sparkle:shortVersionString>1.7.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>Klipt now updates itself</h2>
+                <ul>
+                    <li>Updates come straight from GitHub now. Klipt checks once a day, shows you what changed, and installs on request</li>
+                    <li>Clips marked as passwords are no longer recorded at all</li>
+                    <li>The disk image is signed, so opening the download no longer warns</li>
+                    <li>Quick Look previews and double-click-to-open, if you missed 1.6.0</li>
+                </ul>
+                <p>This is the last update delivered this way. Future ones arrive through Klipt itself.</p>
+            ]]></description>
+            <enclosure url="https://github.com/kianabc/klipt/releases/download/v1.7.0/Klipt-1.7.0.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="I+n8wmx+LHZ/kg9imhx+mm3V1NcI3oyRrLf3G3/6dlrD4jDneps1FHDzmaUU+LE9s5z29wJBQzhpZP9VQlmACg=="
+                       length="1152719"/>
+        </item>
+        <item>
             <title>Klipt 1.6.0</title>
             <pubDate>Mon, 17 Aug 2026 00:00:00 +0000</pubDate>
             <sparkle:version>22</sparkle:version>
