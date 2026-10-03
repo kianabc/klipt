@@ -22,12 +22,36 @@ class ClipboardMonitor {
         timer = nil
     }
 
+    /// Pasteboard markers that mean "do not record this".
+    ///
+    /// `ConcealedType` is what password managers set. `TransientType` marks
+    /// content not meant to outlive the moment. Either one is a clear request
+    /// from the writing app, and the whole convention only works if readers
+    /// actually respect it.
+    private static let privateTypes: [NSPasteboard.PasteboardType] = [
+        NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType"),
+        NSPasteboard.PasteboardType("org.nspasteboard.TransientType"),
+    ]
+
+    private static func isPrivate(_ pasteboard: NSPasteboard) -> Bool {
+        guard let types = pasteboard.types else { return false }
+        return privateTypes.contains { types.contains($0) }
+    }
+
     private func checkClipboard() {
         let pasteboard = NSPasteboard.general
         let currentCount = pasteboard.changeCount
 
         guard currentCount != lastChangeCount else { return }
         lastChangeCount = currentCount
+
+        // Password managers and similar tools mark what they put on the
+        // pasteboard, by convention from nspasteboard.com. Honour it: a
+        // clipboard manager that quietly keeps your passwords in a plist is a
+        // liability, and once clips sync between machines it would replicate
+        // them too. Checked before anything is read, so the secret is never
+        // even held in memory here.
+        if Self.isPrivate(pasteboard) { return }
 
         // Check for images first (before files, since image files have both URL and image data)
         if let images = pasteboard.readObjects(forClasses: [NSImage.self]) as? [NSImage],
