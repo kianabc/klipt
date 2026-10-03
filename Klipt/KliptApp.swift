@@ -68,6 +68,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Silent unless something is actually available, and at most once
         // a day — a launch should never wait on the network.
         UpdateCoordinator.shared.checkIfDue()
+        // No-op unless the user has turned sync on.
+        SyncEngine.shared.start(store: store)
 
         expirationTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
             self?.store.purgeExpired()

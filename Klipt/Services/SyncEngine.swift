@@ -34,6 +34,7 @@ final class SyncEngine {
     private var pending: [ClipItem] = []
     private var flushTimer: Timer?
     private var started = false
+    private var pollTimer: Timer?
 
     private init() {}
 
@@ -55,6 +56,7 @@ final class SyncEngine {
             }
             try await ensureZone()
             await pull()
+            startPolling()
         } catch {
             NSLog("Klipt sync: could not start — \(error.localizedDescription)")
         }
@@ -65,6 +67,20 @@ final class SyncEngine {
     private func ensureZone() async throws {
         let zone = CKRecordZone(zoneID: zoneID)
         _ = try? await database.modifyRecordZones(saving: [zone], deleting: [])
+    }
+
+    /// Poll rather than subscribe, for now.
+    ///
+    /// CloudKit push subscriptions would be lighter, but they need the app to
+    /// handle remote notifications and they are best-effort anyway. A minute of
+    /// latency is irrelevant for history and pinned items, which is all this
+    /// syncs — see docs/SYNC.md on why this deliberately does not chase
+    /// Universal Clipboard's speed.
+    private func startPolling() {
+        guard pollTimer == nil else { return }
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            Task { @MainActor in await self?.pull() }
+        }
     }
 
     // MARK: Push

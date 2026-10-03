@@ -108,6 +108,36 @@ struct SettingsView: View {
                     }
                 }
 
+                // Sync
+                settingsCard {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Label {
+                                Text("Sync between my Macs")
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(.primary.opacity(0.85))
+                            } icon: {
+                                Image(systemName: "icloud")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.blue)
+                            }
+                            Spacer()
+                            Toggle("", isOn: Binding(
+                                get: { SyncPreference.enabled },
+                                set: { SyncPreference.enabled = $0 }))
+                                .labelsHidden()
+                                .toggleStyle(.switch)
+                                .controlSize(.small)
+                        }
+                        // Said plainly, because turning this on is the one
+                        // setting that moves what you copy off this machine.
+                        Text("Text clips go to your own iCloud, encrypted, and appear on your other Macs. Files and images stay on this one. Off by default.")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
                 // Updates
                 settingsCard {
                     HStack {
