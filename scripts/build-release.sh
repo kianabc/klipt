@@ -48,6 +48,21 @@ if ! security find-identity -v -p codesigning | grep -q "$TEAM_ID"; then
     exit 1
 fi
 
+# Signing with CloudKit entitlements needs the profile installed where Xcode
+# looks for it. Keeping a copy in the repo means a fresh checkout on another
+# Mac builds without a trip to the developer portal.
+PROFILE_SRC="Klipt/Resources/Klipt.provisionprofile"
+PROFILE_DIR="$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
+if [ -f "$PROFILE_SRC" ]; then
+    PROFILE_UUID=$(security cms -D -i "$PROFILE_SRC" 2>/dev/null \
+        | plutil -extract UUID raw - 2>/dev/null)
+    if [ -n "$PROFILE_UUID" ] && [ ! -f "$PROFILE_DIR/$PROFILE_UUID.provisionprofile" ]; then
+        echo "==> Installing provisioning profile $PROFILE_UUID"
+        mkdir -p "$PROFILE_DIR"
+        cp "$PROFILE_SRC" "$PROFILE_DIR/$PROFILE_UUID.provisionprofile"
+    fi
+fi
+
 echo "==> Regenerating Xcode project"
 xcodegen generate
 

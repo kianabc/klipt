@@ -10,6 +10,13 @@
 	<string>manual</string>
 	<key>signingCertificate</key>
 	<string>Developer ID Application</string>
+	<!-- Manual signing needs the profile named per bundle id, or export fails
+	     with "requires a provisioning profile" even when the archive is fine. -->
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>app.klipt.Klipt</key>
+		<string>Kliipt Developer ID</string>
+	</dict>
 	<key>destination</key>
 	<string>export</string>
 </dict>

@@ -31,16 +31,31 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Klipt/Resources/Klipt.entitlements
         ENABLE_HARDENED_RUNTIME: true
       configs:
-        # Local dev: ad-hoc sign so a build never needs the Developer ID cert.
+        # Debug signs the same way as Release. Ad-hoc would be lighter, but
+        # CloudKit entitlements are restricted — they only sign against a
+        # provisioning profile — so an ad-hoc debug build cannot exercise sync
+        # at all, which is precisely what needs exercising.
         Debug:
-          CODE_SIGN_STYLE: Automatic
-          CODE_SIGN_IDENTITY: "-"
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Developer ID Application"
+          PROVISIONING_PROFILE_SPECIFIER: "Kliipt Developer ID"
         # Distribution: Developer ID + secure timestamp, required for notarization.
         Release:
           CODE_SIGN_STYLE: Manual
           CODE_SIGN_IDENTITY: "Developer ID Application"
           OTHER_CODE_SIGN_FLAGS: "--timestamp"
+          # CloudKit entitlements are only honoured when backed by a profile,
+          # which Xcode embeds as Contents/embedded.provisionprofile.
+          PROVISIONING_PROFILE_SPECIFIER: "Kliipt Developer ID"
+    # xcodegen regenerates the entitlements file from these properties on every
+    # run, so this block is the source of truth — editing the .entitlements file
+    # directly gets silently overwritten, and the keys vanish from the signature.
     entitlements:
       path: Klipt/Resources/Klipt.entitlements
       properties:
         com.apple.security.automation.apple-events: true
+        com.apple.developer.icloud-services: [CloudKit]
+        com.apple.developer.icloud-container-identifiers: [iCloud.app.klipt.Klipt]
+        # Without this CloudKit talks to the development database, which is not
+        # the one a shipped build should ever see.
+        com.apple.developer.icloud-container-environment: Production

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		15F37CC31801A9FEA196C945 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */; };
 		1DEA5F02447FC8BF3C955CD4 /* PastePickerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */; };
+		414C35F54D5D7EEC128790A0 /* Klipt.provisionprofile in Resources */ = {isa = PBXBuildFile; fileRef = 4AD901C47B3C664B987AA87D /* Klipt.provisionprofile */; };
 		5E8EA6046128185F69D43020 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977E6AAFC5794912477E1080 /* ClipboardStore.swift */; };
 		6D2C2B2DFCED6B700C8BF3C6 /* KliptApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED6A8BBBD809F49B5F1FACA /* KliptApp.swift */; };
 		72FC4A93C0E31A42241FB105 /* DropTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1A42DF7657B847E9931D96 /* DropTargetView.swift */; };
@@ -36,6 +37,7 @@
 		1AD29C83335DB800D571962B /* ArrivalIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalIndicator.swift; sourceTree = "<group>"; };
 		1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		42A44D93D887DBEB7F10D4F1 /* KliptSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KliptSettings.swift; sourceTree = "<group>"; };
+		4AD901C47B3C664B987AA87D /* Klipt.provisionprofile */ = {isa = PBXFileReference; path = Klipt.provisionprofile; sourceTree = "<group>"; };
 		4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipItemView.swift; sourceTree = "<group>"; };
 		5245B65F6C731091C3B9B5B7 /* Klipt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Klipt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55C104AEAC5F9DA90638F458 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 				A09B2153D386152129F0A1EE /* Assets.xcassets */,
 				8538D5FD6BBAD6CF31631516 /* Info.plist */,
 				6DFC9BA07F482FEE116DDC92 /* Klipt.entitlements */,
+				4AD901C47B3C664B987AA87D /* Klipt.provisionprofile */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -171,6 +174,7 @@
 				TargetAttributes = {
 					5BF2D49C00612230802F8838 = {
 						DevelopmentTeam = 7CMPG6N65Y;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -199,6 +203,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				81B0CC87A8E2441E5925FBD4 /* Assets.xcassets in Resources */,
+				414C35F54D5D7EEC128790A0 /* Klipt.provisionprofile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +257,7 @@
 				);
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				PRODUCT_BUNDLE_IDENTIFIER = app.klipt.Klipt;
+				PROVISIONING_PROFILE_SPECIFIER = "Kliipt Developer ID";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -261,8 +267,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Klipt/Resources/Klipt.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Klipt/Resources/Info.plist;
@@ -271,6 +277,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.klipt.Klipt;
+				PROVISIONING_PROFILE_SPECIFIER = "Kliipt Developer ID";
 				SDKROOT = macosx;
 			};
 			name = Debug;
