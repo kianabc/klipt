@@ -10,6 +10,7 @@
 		15F37CC31801A9FEA196C945 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */; };
 		1DEA5F02447FC8BF3C955CD4 /* PastePickerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */; };
 		414C35F54D5D7EEC128790A0 /* Klipt.provisionprofile in Resources */ = {isa = PBXBuildFile; fileRef = 4AD901C47B3C664B987AA87D /* Klipt.provisionprofile */; };
+		59E9C1BFFAE7D2D505448962 /* SyncTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF5F6216D5CD76375606EE5 /* SyncTest.swift */; };
 		5E8EA6046128185F69D43020 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977E6AAFC5794912477E1080 /* ClipboardStore.swift */; };
 		6D2C2B2DFCED6B700C8BF3C6 /* KliptApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED6A8BBBD809F49B5F1FACA /* KliptApp.swift */; };
 		72FC4A93C0E31A42241FB105 /* DropTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1A42DF7657B847E9931D96 /* DropTargetView.swift */; };
@@ -24,6 +25,7 @@
 		B99A8978814107D7E2DE9ED6 /* ClipItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */; };
 		C2E77540D2248CF9CAC2B8E6 /* ClipItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA9F876AAFAC6EE5B429F511 /* ClipItem.swift */; };
 		C61B040E958E151C673A2B91 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CFE7E2F02FD86EBFBB3EC6 /* Updater.swift */; };
+		C7F6462C024F612DCA5D64B9 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 686B56E70DCCC2BC960F6D56 /* SyncEngine.swift */; };
 		CE4408D010C6C5094BEAA672 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F069E24FBB9B6AC56C69BCDC /* SettingsView.swift */; };
 		D72DE9D81DF9ABCDE90C098D /* UpdateUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40554DDF1675D6770EBEF93 /* UpdateUI.swift */; };
 		DA000F0C86AD0E7318DF1B7E /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */; };
@@ -44,6 +46,7 @@
 		5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		5DFC59D9311EDE66EC574080 /* PreviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPanel.swift; sourceTree = "<group>"; };
 		5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastePickerView.swift; sourceTree = "<group>"; };
+		686B56E70DCCC2BC960F6D56 /* SyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		68E4C021BF5B289AB0B20CC2 /* ArrivalTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalTest.swift; sourceTree = "<group>"; };
 		6DFC9BA07F482FEE116DDC92 /* Klipt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Klipt.entitlements; sourceTree = "<group>"; };
 		6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
@@ -56,6 +59,7 @@
 		AC1A42DF7657B847E9931D96 /* DropTargetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropTargetView.swift; sourceTree = "<group>"; };
 		C137386702C3E5214A40B036 /* ScreenshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotService.swift; sourceTree = "<group>"; };
 		CA9F876AAFAC6EE5B429F511 /* ClipItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipItem.swift; sourceTree = "<group>"; };
+		DAF5F6216D5CD76375606EE5 /* SyncTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTest.swift; sourceTree = "<group>"; };
 		EED6A8BBBD809F49B5F1FACA /* KliptApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KliptApp.swift; sourceTree = "<group>"; };
 		F069E24FBB9B6AC56C69BCDC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F40554DDF1675D6770EBEF93 /* UpdateUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateUI.swift; sourceTree = "<group>"; };
@@ -135,6 +139,8 @@
 				5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */,
 				91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */,
 				C137386702C3E5214A40B036 /* ScreenshotService.swift */,
+				686B56E70DCCC2BC960F6D56 /* SyncEngine.swift */,
+				DAF5F6216D5CD76375606EE5 /* SyncTest.swift */,
 				6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */,
 				83CFE7E2F02FD86EBFBB3EC6 /* Updater.swift */,
 				9A9B4CD8ADECD1D554B3E217 /* UpdaterSelfTest.swift */,
@@ -231,6 +237,8 @@
 				FFE0B50F367F3D56FEE7B1A9 /* PreviewPanel.swift in Sources */,
 				7F1948D90993CE0376833BFC /* ScreenshotService.swift in Sources */,
 				CE4408D010C6C5094BEAA672 /* SettingsView.swift in Sources */,
+				C7F6462C024F612DCA5D64B9 /* SyncEngine.swift in Sources */,
+				59E9C1BFFAE7D2D505448962 /* SyncTest.swift in Sources */,
 				DA000F0C86AD0E7318DF1B7E /* UpdateChecker.swift in Sources */,
 				D72DE9D81DF9ABCDE90C098D /* UpdateUI.swift in Sources */,
 				C61B040E958E151C673A2B91 /* Updater.swift in Sources */,

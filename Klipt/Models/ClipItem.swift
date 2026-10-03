@@ -66,6 +66,21 @@ struct ClipItem: Identifiable, Codable, Equatable {
     var fileUTI: String?
     var groupFileBookmarks: [Data]?
     var groupFileNames: [String]?
+    /// The machine this clip was copied on, when it came from another one.
+    /// nil means it originated here. Optional so existing clips.json files,
+    /// written before sync existed, still decode.
+    var sourceDevice: String?
+
+    /// Rebuild a clip that arrived from another machine, preserving the id and
+    /// timestamp so the same clip is the same clip everywhere.
+    init(syncedText: String, id: UUID, createdAt: Date, pinned: Bool, device: String?) {
+        self.id = id
+        self.type = .text
+        self.createdAt = createdAt
+        self.isPinned = pinned
+        self.textContent = syncedText
+        self.sourceDevice = device
+    }
 
     init(text: String) {
         self.id = UUID()
