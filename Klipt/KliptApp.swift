@@ -38,6 +38,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Verification is a refusal path, so it has to be exercised
         // deliberately — nothing about a normal launch would reveal a check
         // that silently stopped refusing.
+        if CommandLine.arguments.contains("--arrival-test") {
+            ArrivalTest.start()
+            return
+        }
+
         if CommandLine.arguments.contains("--updater-selftest") {
             UpdaterSelfTest.start()
             return
@@ -100,6 +105,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
             let image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Klipt")?.withSymbolConfiguration(config)
             button.image = image
+        }
+
+        // setupStatusBar runs from applicationDidFinishLaunching, which is
+        // already on the main actor.
+        if let statusItem {
+            MainActor.assumeIsolated { ArrivalIndicator.shared.attach(to: statusItem) }
         }
 
         let menu = NSMenu()

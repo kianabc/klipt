@@ -53,6 +53,10 @@ class ClipboardMonitor {
         // even held in memory here.
         if Self.isPrivate(pasteboard) { return }
 
+        // Copying something locally means the user is here and working, so a
+        // "something arrived from your other Mac" dot is already stale.
+        Task { @MainActor in ArrivalIndicator.shared.localActivity() }
+
         // Check for images first (before files, since image files have both URL and image data)
         if let images = pasteboard.readObjects(forClasses: [NSImage.self]) as? [NSImage],
            let image = images.first,

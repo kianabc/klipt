@@ -16,6 +16,7 @@
 		81B0CC87A8E2441E5925FBD4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A09B2153D386152129F0A1EE /* Assets.xcassets */; };
 		88B3FBDF73BDD18E7E134B08 /* PastePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */; };
 		8C57EA1FABE440C9CC05294D /* DragTrayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */; };
+		91607693B3B7EC8638694279 /* ArrivalTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68E4C021BF5B289AB0B20CC2 /* ArrivalTest.swift */; };
 		9AE6BAEE6C2C531CEA0AA77E /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C104AEAC5F9DA90638F458 /* OnboardingView.swift */; };
 		9D6C5F1EDC421B19ECA5774B /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */; };
 		B3247E4931C3279FEFD221A8 /* UpdaterSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9B4CD8ADECD1D554B3E217 /* UpdaterSelfTest.swift */; };
@@ -26,11 +27,13 @@
 		D72DE9D81DF9ABCDE90C098D /* UpdateUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40554DDF1675D6770EBEF93 /* UpdateUI.swift */; };
 		DA000F0C86AD0E7318DF1B7E /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */; };
 		E549032CC74515CE110CD71B /* KliptSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A44D93D887DBEB7F10D4F1 /* KliptSettings.swift */; };
+		FEB010208D19E22C20D587A1 /* ArrivalIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD29C83335DB800D571962B /* ArrivalIndicator.swift */; };
 		FFE0B50F367F3D56FEE7B1A9 /* PreviewPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFC59D9311EDE66EC574080 /* PreviewPanel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragTrayWindow.swift; sourceTree = "<group>"; };
+		1AD29C83335DB800D571962B /* ArrivalIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalIndicator.swift; sourceTree = "<group>"; };
 		1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		42A44D93D887DBEB7F10D4F1 /* KliptSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KliptSettings.swift; sourceTree = "<group>"; };
 		4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipItemView.swift; sourceTree = "<group>"; };
@@ -39,6 +42,7 @@
 		5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		5DFC59D9311EDE66EC574080 /* PreviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPanel.swift; sourceTree = "<group>"; };
 		5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastePickerView.swift; sourceTree = "<group>"; };
+		68E4C021BF5B289AB0B20CC2 /* ArrivalTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalTest.swift; sourceTree = "<group>"; };
 		6DFC9BA07F482FEE116DDC92 /* Klipt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Klipt.entitlements; sourceTree = "<group>"; };
 		6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
 		83CFE7E2F02FD86EBFBB3EC6 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
@@ -121,6 +125,8 @@
 		BE08BB9AE476723ED458F489 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				1AD29C83335DB800D571962B /* ArrivalIndicator.swift */,
+				68E4C021BF5B289AB0B20CC2 /* ArrivalTest.swift */,
 				1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */,
 				041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */,
 				5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */,
@@ -203,6 +209,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FEB010208D19E22C20D587A1 /* ArrivalIndicator.swift in Sources */,
+				91607693B3B7EC8638694279 /* ArrivalTest.swift in Sources */,
 				C2E77540D2248CF9CAC2B8E6 /* ClipItem.swift in Sources */,
 				B99A8978814107D7E2DE9ED6 /* ClipItemView.swift in Sources */,
 				9D6C5F1EDC421B19ECA5774B /* ClipboardMonitor.swift in Sources */,

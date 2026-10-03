@@ -114,6 +114,7 @@ class KliptPanel: NSPanel {
     }
 
     func showCentered() {
+        ArrivalIndicator.shared.trayOpened()
         AppDelegate.log("showCentered: isVisible=\(self.isVisible)")
 
         // Clean up any stale state from a previous show
@@ -145,6 +146,7 @@ class KliptPanel: NSPanel {
     }
 
     func showForDrag() {
+        ArrivalIndicator.shared.trayOpened()
         guard !isVisible else { return }
         openedForDrag = true
         kliptState.reset()
@@ -351,6 +353,7 @@ class KliptPanel: NSPanel {
         dismiss()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             simulatePaste()
+            ArrivalIndicator.shared.localActivity()
         }
     }
 
