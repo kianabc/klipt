@@ -142,6 +142,11 @@ if [[ "$NOTARIZE" == true ]]; then
         -ov -format UDZO -quiet "$DMG"
     rm -rf "$DMG_STAGING"
 
+    # Sign the image itself. A notarised app inside an unsigned disk image
+    # still warns when the image is opened, which is the first thing a person
+    # downloading it does.
+    codesign --force --sign "$IDENTITY" --timestamp "$DMG"
+
     echo "==> Notarizing the disk image"
     xcrun notarytool submit "$DMG" --keychain-profile "$NOTARY_PROFILE" --wait
     xcrun stapler staple "$DMG"
