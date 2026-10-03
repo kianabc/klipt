@@ -76,7 +76,7 @@ enum UpdaterSelfTest {
                     return "could not open the binary to tamper with it"
                 }
                 // Append rather than overwrite: we only need the seal broken.
-                try? handle.seekToEnd()
+                _ = try? handle.seekToEnd()
                 try? handle.write(contentsOf: Data([0x00]))
                 try? handle.close()
                 do {
