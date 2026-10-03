@@ -2,6 +2,17 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.9.0] — 2026-10-03
+
+### Added
+- Screenshots, images and files now sync between your Macs too, not just text.
+  Files up to 25 MB travel; anything larger stays on the machine you copied it
+  on, since it would be your own iCloud storage being spent.
+
+### Fixed
+- Clips created by dropping onto the tray, or captured as screenshots, were
+  never synced — only ones copied to the clipboard were.
+
 ## [1.8.0] — 2026-10-03
 
 ### Added

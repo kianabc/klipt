@@ -71,6 +71,40 @@ struct ClipItem: Identifiable, Codable, Equatable {
     /// written before sync existed, still decode.
     var sourceDevice: String?
 
+    /// Where files that arrived from another Mac are kept. The original lives
+    /// on the machine it was copied on; this is our own copy of the bytes.
+    static let syncedFilesDirectory: URL = {
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Klipt/SyncedFiles", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }()
+
+    /// Rebuild an image clip that arrived from another machine.
+    init(syncedImagePath: String, id: UUID, createdAt: Date, pinned: Bool, device: String?) {
+        self.id = id
+        self.type = .image
+        self.createdAt = createdAt
+        self.isPinned = pinned
+        self.imageFilePath = syncedImagePath
+        self.sourceDevice = device
+    }
+
+    /// Rebuild a file clip that arrived from another machine. The bookmark
+    /// points at our local copy — the sender's bookmark would be meaningless
+    /// here, since it describes a path on their disk.
+    init(syncedFile url: URL, name: String, uti: String?,
+         id: UUID, createdAt: Date, pinned: Bool, device: String?) {
+        self.id = id
+        self.type = .file
+        self.createdAt = createdAt
+        self.isPinned = pinned
+        self.fileName = name
+        self.fileUTI = uti
+        self.fileBookmarkData = try? url.bookmarkData(options: .withSecurityScope)
+        self.sourceDevice = device
+    }
+
     /// Rebuild a clip that arrived from another machine, preserving the id and
     /// timestamp so the same clip is the same clip everywhere.
     init(syncedText: String, id: UUID, createdAt: Date, pinned: Bool, device: String?) {

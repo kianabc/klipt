@@ -78,9 +78,7 @@ class ClipboardMonitor {
 
         // Check for text
         if let text = pasteboard.string(forType: .string), !text.isEmpty {
-            let item = ClipItem(text: text)
-            store.add(item)
-            Task { @MainActor in SyncEngine.shared.push(item) }
+            store.add(ClipItem(text: text))
             return
         }
     }

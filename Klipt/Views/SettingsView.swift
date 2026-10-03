@@ -131,7 +131,7 @@ struct SettingsView: View {
                         }
                         // Said plainly, because turning this on is the one
                         // setting that moves what you copy off this machine.
-                        Text("Text clips go to your own iCloud, encrypted, and appear on your other Macs. Files and images stay on this one. Off by default.")
+                        Text("Clips go to your own iCloud and appear on your other Macs. Text is encrypted so that not even Apple can read it. Files over 25 MB stay on this Mac. Off by default.")
                             .font(.system(size: 11))
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

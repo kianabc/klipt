@@ -47,9 +47,20 @@ Two constraints that shape the implementation:
 
 ## What syncs
 
-Text, links and small images. **Files stay local** — replicating a 2GB video to
-every machine is a different product. A file clip from another machine shows as
-present but not available here.
+Text, links, images (screenshots included) and files up to **25 MB**. Anything
+larger stays on the machine it was copied on: assets count against the user's
+own iCloud storage, and a clipboard quietly uploading a disk image is not a
+trade anyone agreed to. Grouped multi-file drops are not carried yet.
+
+Images and files travel as CKAssets. Note the asymmetry with text: an Encrypted
+String is end-to-end encrypted and Apple holds only ciphertext, while an asset
+is encrypted in transit and at rest but not end-to-end. Text is the field most
+likely to hold a password, which is why it gets the stronger guarantee.
+
+A file's bookmark is never synced — it describes a path on the sender's disk and
+means nothing anywhere else. The bytes are uploaded, written into
+`Application Support/Klipt/SyncedFiles/<record id>/` on arrival, and a fresh
+bookmark is made against that local copy.
 
 **Nothing marked concealed ever syncs, or is even stored.** Password managers
 flag their pasteboard writes with `org.nspasteboard.ConcealedType`. Honouring

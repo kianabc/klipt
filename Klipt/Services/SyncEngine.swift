@@ -89,9 +89,15 @@ final class SyncEngine {
     /// times a minute, and CloudKit throttles an app that pushes per keystroke.
     func push(_ item: ClipItem) {
         guard SyncPreference.enabled, started else { return }
-        // Files stay local — replicating a 2GB video to every machine is a
-        // different product. Text and links only, for now.
-        guard item.type == .text, item.textContent != nil else { return }
+        switch item.type {
+        case .text:
+            guard item.textContent != nil else { return }
+        case .image, .file:
+            break
+        default:
+            // Grouped file drops are not carried yet.
+            return
+        }
         pending.append(item)
         flushTimer?.invalidate()
         flushTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: false) { [weak self] _ in
@@ -103,7 +109,8 @@ final class SyncEngine {
         let batch = pending
         pending = []
         guard !batch.isEmpty else { return }
-        let records = batch.map(record(from:))
+        let records = batch.compactMap(record(from:))
+        guard !records.isEmpty else { return }
         do {
             _ = try await database.modifyRecords(saving: records, deleting: [],
                                                  savePolicy: .changedKeys)
@@ -113,17 +120,76 @@ final class SyncEngine {
         }
     }
 
-    private func record(from item: ClipItem) -> CKRecord {
+    /// Anything larger than this is left on the machine it was copied on.
+    /// Assets count against the user's own iCloud storage, and a clipboard
+    /// quietly uploading a disk image is not a trade anyone agreed to.
+    private static let maxAssetBytes = 25 * 1024 * 1024
+
+    private func record(from item: ClipItem) -> CKRecord? {
         let id = CKRecord.ID(recordName: item.id.uuidString, zoneID: zoneID)
         let record = CKRecord(recordType: Self.recordType, recordID: id)
-        // text is an Encrypted String in the schema — end-to-end encrypted,
-        // so not even Apple can read a clip. Plain subscripting would not
-        // write it and it would read back nil.
-        record.encryptedValues["text"] = item.textContent
         record["createdAt"] = item.createdAt
         record["pinned"] = item.isPinned ? 1 : 0
         record["device"] = Self.deviceName
+
+        switch item.type {
+        case .text:
+            record["kind"] = "text"
+            // text is an Encrypted String in the schema — end-to-end
+            // encrypted, so not even Apple can read a clip. Plain subscripting
+            // would not write it and it would read back nil.
+            record.encryptedValues["text"] = item.textContent
+
+        case .image:
+            guard let source = item.imageFileURL ?? Self.spill(item.imageData, as: "png"),
+                  let staged = Self.stageForUpload(source) else { return nil }
+            record["kind"] = "image"
+            record["asset"] = CKAsset(fileURL: staged)
+
+        case .file:
+            // Copy out from under security scope first: the upload is async and
+            // the scope would be long released by the time CloudKit reads it.
+            guard let staged = item.withSecurityScopedAccess({ Self.stageForUpload($0) }) ?? nil
+            else { return nil }
+            guard let size = try? FileManager.default
+                    .attributesOfItem(atPath: staged.path)[.size] as? Int,
+                  size <= Self.maxAssetBytes else {
+                NSLog("Klipt sync: skipping \(item.fileName ?? "a file") — larger than 25 MB")
+                try? FileManager.default.removeItem(at: staged)
+                return nil
+            }
+            record["kind"] = "file"
+            record["asset"] = CKAsset(fileURL: staged)
+            record["fileName"] = item.fileName ?? staged.lastPathComponent
+            record["fileUTI"] = item.fileUTI
+
+        default:
+            return nil
+        }
         return record
+    }
+
+    /// CKAsset reads its file lazily during upload, so it needs one that will
+    /// still be there and still be readable.
+    private static func stageForUpload(_ source: URL) -> URL? {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("klipt-upload-\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let destination = dir.appendingPathComponent(source.lastPathComponent)
+        do {
+            try FileManager.default.copyItem(at: source, to: destination)
+            return destination
+        } catch {
+            return nil
+        }
+    }
+
+    /// Older image clips kept their bytes inline rather than on disk.
+    private static func spill(_ data: Data?, as ext: String) -> URL? {
+        guard let data else { return nil }
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("klipt-inline-\(UUID().uuidString).\(ext)")
+        return (try? data.write(to: url)) == nil ? nil : url
     }
 
     // MARK: Pull
@@ -166,12 +232,46 @@ final class SyncEngine {
     }
 
     private static func item(from record: CKRecord) -> ClipItem? {
-        guard let text = record.encryptedValues["text"] as? String,
-              let uuid = UUID(uuidString: record.recordID.recordName) else { return nil }
-        return ClipItem(syncedText: text,
-                        id: uuid,
-                        createdAt: record["createdAt"] as? Date ?? Date(),
-                        pinned: (record["pinned"] as? Int ?? 0) == 1,
-                        device: record["device"] as? String)
+        guard let uuid = UUID(uuidString: record.recordID.recordName) else { return nil }
+        let createdAt = record["createdAt"] as? Date ?? Date()
+        let pinned = (record["pinned"] as? Int ?? 0) == 1
+        let device = record["device"] as? String
+        // Records written before images and files synced carry no kind.
+        let kind = record["kind"] as? String ?? "text"
+
+        switch kind {
+        case "text":
+            guard let text = record.encryptedValues["text"] as? String else { return nil }
+            return ClipItem(syncedText: text, id: uuid, createdAt: createdAt,
+                            pinned: pinned, device: device)
+
+        case "image":
+            guard let asset = record["asset"] as? CKAsset, let source = asset.fileURL,
+                  let data = try? Data(contentsOf: source) else { return nil }
+            // CloudKit's own copy is temporary and is cleaned up behind us.
+            let path = ClipItem.saveImageToDisk(data, timestamp: createdAt)
+            return ClipItem(syncedImagePath: path, id: uuid, createdAt: createdAt,
+                            pinned: pinned, device: device)
+
+        case "file":
+            guard let asset = record["asset"] as? CKAsset, let source = asset.fileURL
+            else { return nil }
+            let name = record["fileName"] as? String ?? source.lastPathComponent
+            // Namespaced by record id so two Macs sending the same filename do
+            // not overwrite each other.
+            let dir = ClipItem.syncedFilesDirectory.appendingPathComponent(uuid.uuidString)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            let destination = dir.appendingPathComponent(name)
+            if !FileManager.default.fileExists(atPath: destination.path) {
+                guard (try? FileManager.default.copyItem(at: source, to: destination)) != nil
+                else { return nil }
+            }
+            return ClipItem(syncedFile: destination, name: name,
+                            uti: record["fileUTI"] as? String,
+                            id: uuid, createdAt: createdAt, pinned: pinned, device: device)
+
+        default:
+            return nil
+        }
     }
 }

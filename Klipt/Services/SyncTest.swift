@@ -73,8 +73,43 @@ enum SyncTest {
                 }
                 print("  read it back intact")
 
+                // Assets are how images and files travel, and they fail
+                // differently from scalar fields — a missing Asset column
+                // rejects the whole record.
+                let payload = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("klipt-asset-\(UUID().uuidString).bin")
+                let bytes = Data((0..<4096).map { UInt8($0 % 251) })
+                try bytes.write(to: payload)
+                defer { try? FileManager.default.removeItem(at: payload) }
+
+                let assetID = CKRecord.ID(recordName: UUID().uuidString, zoneID: zoneID)
+                let assetRecord = CKRecord(recordType: "Clip", recordID: assetID)
+                assetRecord["kind"] = "image"
+                assetRecord["createdAt"] = Date()
+                assetRecord["pinned"] = 0
+                assetRecord["device"] = SyncEngine.deviceName
+                assetRecord["asset"] = CKAsset(fileURL: payload)
+
+                let assetSaved = try await database.modifyRecords(
+                    saving: [assetRecord], deleting: [], savePolicy: .changedKeys)
+                for (_, result) in assetSaved.saveResults {
+                    if case .failure(let error) = result {
+                        print("\nFAILED to save the asset record: \(error.localizedDescription)")
+                        exit(1)
+                    }
+                }
+                let backAsset = try await database.record(for: assetID)
+                guard let fetchedAsset = backAsset["asset"] as? CKAsset,
+                      let url = fetchedAsset.fileURL,
+                      let roundTripped = try? Data(contentsOf: url),
+                      roundTripped == bytes else {
+                    print("\nFAILED — the asset did not come back intact")
+                    exit(1)
+                }
+                print("  asset round-tripped \(roundTripped.count) bytes")
+
                 // Leave nothing behind; this is the user's real iCloud.
-                _ = try await database.modifyRecords(saving: [], deleting: [recordID])
+                _ = try await database.modifyRecords(saving: [], deleting: [recordID, assetID])
                 print("  cleaned up")
 
                 print("\npassed — CloudKit is reachable and the container works")

@@ -52,6 +52,14 @@ class ClipboardStore {
         items.insert(item, at: 0)
         trimExcessItems(type: item.type)
         save()
+
+        // Every clip enters through here — pasted, dropped, screenshotted or
+        // pulled from another Mac. Only locally-made ones are pushed back up:
+        // a clip that arrived already carries the machine it came from, and
+        // re-sending it would bounce it around forever.
+        if item.sourceDevice == nil {
+            Task { @MainActor in SyncEngine.shared.push(item) }
+        }
     }
 
     /// Remove oldest unpinned items when a category exceeds the limit
