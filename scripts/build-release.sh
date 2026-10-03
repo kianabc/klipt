@@ -25,10 +25,17 @@ EXPORT_DIR="build/Release-export"
 APP="$EXPORT_DIR/Klipt.app"
 ZIP="build/Klipt.zip"
 DMG_STAGING="build/dmg-staging"
-SIGN_UPDATE="build/dd/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update"
 
-# Version comes from project.yml so the DMG name matches the release tag.
-MARKETING_VERSION=$(awk -F'"' '/MARKETING_VERSION:/ {print $2; exit}' project.yml)
+# VERSION is the source of truth; project.yml has to agree or the bundle would
+# ship a version the git tag contradicts. Checked rather than silently synced,
+# because rewriting a tracked file mid-build dirties the tree.
+MARKETING_VERSION=$(tr -d '[:space:]' < VERSION)
+PROJECT_VERSION=$(awk -F'"' '/MARKETING_VERSION:/ {print $2; exit}' project.yml)
+if [ "$MARKETING_VERSION" != "$PROJECT_VERSION" ]; then
+    echo "error: VERSION says $MARKETING_VERSION but project.yml says $PROJECT_VERSION." >&2
+    echo "       Run ./scripts/release.sh $MARKETING_VERSION to bring them into step." >&2
+    exit 1
+fi
 DMG="build/Klipt-${MARKETING_VERSION}.dmg"
 
 NOTARIZE=false
@@ -44,9 +51,10 @@ fi
 echo "==> Regenerating Xcode project"
 xcodegen generate
 
-# Build number is the commit count: monotonically increasing, which is what
-# Sparkle compares to decide an update is newer. The revision pins the exact
-# source a build came from; -dirty means it had uncommitted changes.
+# Build number is the commit count: monotonically increasing. The revision pins
+# the exact source a build came from; -dirty means it had uncommitted changes.
+# The updater compares CFBundleShortVersionString, not this, but a build number
+# that never goes backwards keeps Finder and crash reports honest.
 BUILD_NUMBER=$(git rev-list --count HEAD)
 GIT_REVISION=$(git rev-parse --short HEAD)
 # xcodegen rewrites project.pbxproj above, which bumps its mtime even when the
@@ -76,7 +84,8 @@ xcodebuild -exportArchive \
     -exportPath "$EXPORT_DIR"
 
 echo "==> Verifying signature"
-# --deep --strict walks the Sparkle framework, Updater.app and both XPC services.
+# --deep --strict walks any nested code. Klipt bundles no frameworks since
+# Sparkle was removed, so this is cheap — and it stays correct if that changes.
 codesign --verify --deep --strict --verbose=2 "$APP"
 
 # Every nested bundle must carry the Developer ID authority, not an ad-hoc one.
@@ -91,6 +100,9 @@ while IFS= read -r bundle; do
     [[ "$label" == "$bundle" ]] && label="Klipt.app"
     printf '    %-58s %s\n' "$label" "ok"
 done < <(find "$APP" \( -name "*.app" -o -name "*.framework" -o -name "*.xpc" \) -print)
+
+echo "==> Preflight"
+./scripts/preflight.sh "$APP"
 
 echo "==> Checking hardened runtime"
 # Capture first rather than piping into grep -q: an early-exiting grep SIGPIPEs
@@ -135,13 +147,6 @@ if [[ "$NOTARIZE" == true ]]; then
     xcrun stapler staple "$DMG"
     spctl -a -vvv -t open --context context:primary-signature "$DMG"
 
-    echo "==> Signing the appcast enclosure"
-    if [[ -x "$SIGN_UPDATE" ]]; then
-        "$SIGN_UPDATE" "$DMG"
-        echo "    length=$(stat -f%z "$DMG")"
-    else
-        echo "    sign_update not found at $SIGN_UPDATE — run it manually" >&2
-    fi
 else
     echo
     echo "Signed but NOT notarized — Gatekeeper will still block this on other Macs."

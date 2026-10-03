@@ -35,19 +35,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             reason: "Klipt needs to respond to global hotkeys and monitor clipboard"
         )
         ProcessInfo.processInfo.disableAutomaticTermination("Klipt must remain running for hotkeys and clipboard monitoring")
+        // Verification is a refusal path, so it has to be exercised
+        // deliberately — nothing about a normal launch would reveal a check
+        // that silently stopped refusing.
+        if CommandLine.arguments.contains("--updater-selftest") {
+            UpdaterSelfTest.start()
+            return
+        }
+
         ProcessInfo.processInfo.disableSuddenTermination()
         logger.info("Klipt launched, automatic termination disabled")
 
         clipboardMonitor = ClipboardMonitor(store: store)
         screenshotService = ScreenshotService(store: store)
 
-        _ = UpdaterService.shared // Initialize Sparkle updater
         setupStatusBar()
         setupPanel()
         setupHotkeys()
         setupDragMonitor()
         clipboardMonitor.start()
         screenshotService.start()
+        // Silent unless something is actually available, and at most once
+        // a day — a launch should never wait on the network.
+        UpdateCoordinator.shared.checkIfDue()
 
         expirationTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
             self?.store.purgeExpired()
@@ -95,6 +105,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Show Klipt", action: #selector(showKlipt), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ","))
+        menu.addItem(NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit Klipt", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem?.menu = menu
@@ -102,6 +113,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func openSettings() {
         kliptPanel?.showSettings()
+    }
+
+    @objc func checkForUpdates() {
+        // Menu actions are delivered on the main thread, so this is an
+        // assertion of something already true rather than a hop.
+        MainActor.assumeIsolated { UpdateCoordinator.shared.checkNow() }
     }
 
     @objc func quitApp() {

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		15F37CC31801A9FEA196C945 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */; };
 		1DEA5F02447FC8BF3C955CD4 /* PastePickerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */; };
-		390D18A441097C81659998D7 /* UpdaterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9C11E44B19905D44F6B0A10 /* UpdaterService.swift */; };
 		5E8EA6046128185F69D43020 /* ClipboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977E6AAFC5794912477E1080 /* ClipboardStore.swift */; };
 		6D2C2B2DFCED6B700C8BF3C6 /* KliptApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EED6A8BBBD809F49B5F1FACA /* KliptApp.swift */; };
 		72FC4A93C0E31A42241FB105 /* DropTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1A42DF7657B847E9931D96 /* DropTargetView.swift */; };
@@ -19,10 +18,13 @@
 		8C57EA1FABE440C9CC05294D /* DragTrayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */; };
 		9AE6BAEE6C2C531CEA0AA77E /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C104AEAC5F9DA90638F458 /* OnboardingView.swift */; };
 		9D6C5F1EDC421B19ECA5774B /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */; };
+		B3247E4931C3279FEFD221A8 /* UpdaterSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9B4CD8ADECD1D554B3E217 /* UpdaterSelfTest.swift */; };
 		B99A8978814107D7E2DE9ED6 /* ClipItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */; };
-		BD1345E81CE9B58D105B4A79 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 37FA39360B282780965AB72A /* Sparkle */; };
 		C2E77540D2248CF9CAC2B8E6 /* ClipItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA9F876AAFAC6EE5B429F511 /* ClipItem.swift */; };
+		C61B040E958E151C673A2B91 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CFE7E2F02FD86EBFBB3EC6 /* Updater.swift */; };
 		CE4408D010C6C5094BEAA672 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F069E24FBB9B6AC56C69BCDC /* SettingsView.swift */; };
+		D72DE9D81DF9ABCDE90C098D /* UpdateUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40554DDF1675D6770EBEF93 /* UpdateUI.swift */; };
+		DA000F0C86AD0E7318DF1B7E /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */; };
 		E549032CC74515CE110CD71B /* KliptSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A44D93D887DBEB7F10D4F1 /* KliptSettings.swift */; };
 		FFE0B50F367F3D56FEE7B1A9 /* PreviewPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFC59D9311EDE66EC574080 /* PreviewPanel.swift */; };
 /* End PBXBuildFile section */
@@ -38,28 +40,20 @@
 		5DFC59D9311EDE66EC574080 /* PreviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPanel.swift; sourceTree = "<group>"; };
 		5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastePickerView.swift; sourceTree = "<group>"; };
 		6DFC9BA07F482FEE116DDC92 /* Klipt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Klipt.entitlements; sourceTree = "<group>"; };
+		6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
+		83CFE7E2F02FD86EBFBB3EC6 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
 		8538D5FD6BBAD6CF31631516 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastePickerPanel.swift; sourceTree = "<group>"; };
 		977E6AAFC5794912477E1080 /* ClipboardStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardStore.swift; sourceTree = "<group>"; };
+		9A9B4CD8ADECD1D554B3E217 /* UpdaterSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterSelfTest.swift; sourceTree = "<group>"; };
 		A09B2153D386152129F0A1EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AC1A42DF7657B847E9931D96 /* DropTargetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropTargetView.swift; sourceTree = "<group>"; };
 		C137386702C3E5214A40B036 /* ScreenshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotService.swift; sourceTree = "<group>"; };
 		CA9F876AAFAC6EE5B429F511 /* ClipItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipItem.swift; sourceTree = "<group>"; };
-		D9C11E44B19905D44F6B0A10 /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterService.swift; sourceTree = "<group>"; };
 		EED6A8BBBD809F49B5F1FACA /* KliptApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KliptApp.swift; sourceTree = "<group>"; };
 		F069E24FBB9B6AC56C69BCDC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F40554DDF1675D6770EBEF93 /* UpdateUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateUI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		9F9E98FA2BDDFBB26BBA4B81 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BD1345E81CE9B58D105B4A79 /* Sparkle in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		2F537F704403757D93245BBE /* Views */ = {
@@ -71,6 +65,7 @@
 				5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */,
 				5DFC59D9311EDE66EC574080 /* PreviewPanel.swift */,
 				F069E24FBB9B6AC56C69BCDC /* SettingsView.swift */,
+				F40554DDF1675D6770EBEF93 /* UpdateUI.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -131,7 +126,9 @@
 				5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */,
 				91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */,
 				C137386702C3E5214A40B036 /* ScreenshotService.swift */,
-				D9C11E44B19905D44F6B0A10 /* UpdaterService.swift */,
+				6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */,
+				83CFE7E2F02FD86EBFBB3EC6 /* Updater.swift */,
+				9A9B4CD8ADECD1D554B3E217 /* UpdaterSelfTest.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -145,7 +142,6 @@
 			buildPhases = (
 				8328EE34CBB5107AF80066D1 /* Sources */,
 				6C8E632E36CD3BD6050DED9B /* Resources */,
-				9F9E98FA2BDDFBB26BBA4B81 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -153,7 +149,6 @@
 			);
 			name = Klipt;
 			packageProductDependencies = (
-				37FA39360B282780965AB72A /* Sparkle */,
 			);
 			productName = Klipt;
 			productReference = 5245B65F6C731091C3B9B5B7 /* Klipt.app */;
@@ -182,9 +177,6 @@
 			);
 			mainGroup = 9F9106A56CF51155AB00038B;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				124A4CCDCAAFE0AD498712CB /* XCRemoteSwiftPackageReference "Sparkle" */,
-			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 50E8F0123D1757B220EC697F /* Products */;
 			projectDirPath = "";
@@ -226,7 +218,10 @@
 				FFE0B50F367F3D56FEE7B1A9 /* PreviewPanel.swift in Sources */,
 				7F1948D90993CE0376833BFC /* ScreenshotService.swift in Sources */,
 				CE4408D010C6C5094BEAA672 /* SettingsView.swift in Sources */,
-				390D18A441097C81659998D7 /* UpdaterService.swift in Sources */,
+				DA000F0C86AD0E7318DF1B7E /* UpdateChecker.swift in Sources */,
+				D72DE9D81DF9ABCDE90C098D /* UpdateUI.swift in Sources */,
+				C61B040E958E151C673A2B91 /* Updater.swift in Sources */,
+				B3247E4931C3279FEFD221A8 /* UpdaterSelfTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,7 +322,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				KLIPT_GIT_REVISION = dev;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.6.0;
+				MARKETING_VERSION = 1.7.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -388,7 +383,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				KLIPT_GIT_REVISION = dev;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.6.0;
+				MARKETING_VERSION = 1.7.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = Klipt;
@@ -421,25 +416,6 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		124A4CCDCAAFE0AD498712CB /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.6.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		37FA39360B282780965AB72A /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 124A4CCDCAAFE0AD498712CB /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F125C78210EBDB5EEC141D5E /* Project object */;
 }

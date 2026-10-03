@@ -1,6 +1,5 @@
 import SwiftUI
 import Carbon
-import Sparkle
 
 struct SettingsView: View {
     @Bindable var settings: KliptSettings
@@ -123,7 +122,7 @@ struct SettingsView: View {
                         }
                         Spacer()
                         Button("Check for Updates") {
-                            UpdaterService.shared.checkForUpdates()
+                            UpdateCoordinator.shared.checkNow()
                         }
                         .buttonStyle(.plain)
                         .font(.system(size: 12, weight: .medium))
