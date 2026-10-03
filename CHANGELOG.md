@@ -2,6 +2,18 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.8.0] — 2026-10-03
+
+### Added
+- Sync between your Macs. Turn it on in Settings and text clips travel to
+  your other Macs through your own iCloud, encrypted end to end so that not
+  even Apple can read them. Off by default; files and images stay on the
+  machine you copied them on.
+- The menu bar icon pulses and keeps a small dot when a clip arrives from
+  another Mac, so you know it landed without opening the tray. The dot clears
+  when you open the tray, copy or paste anything, or after five minutes.
+- Clips show which Mac they came from.
+
 ## [1.7.0] — 2026-10-03
 
 ### Changed
