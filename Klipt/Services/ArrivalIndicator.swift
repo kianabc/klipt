@@ -123,15 +123,30 @@ final class ArrivalIndicator {
         button.image = showingDot ? Self.badged(base) : base
     }
 
-    /// A template image adapts to light and dark menu bars on its own, so the
-    /// badge is drawn into one rather than tinted on top of a flat colour.
-    private static func badged(_ base: NSImage) -> NSImage {
+    /// A template image is a single-colour mask: the menu bar paints every
+    /// opaque pixel the same shade. So a dot drawn straight onto the glyph is
+    /// the same colour as the glyph and simply disappears. It needs a
+    /// transparent gap punched around it to read as a separate mark.
+    ///
+    /// The glyph is also drawn slightly smaller and offset, so the badge sits
+    /// in genuinely empty space rather than on top of the clipboard shape.
+    static func badged(_ base: NSImage) -> NSImage {
         let size = base.size
         let image = NSImage(size: size, flipped: false) { rect in
-            base.draw(in: rect)
-            let diameter: CGFloat = 5
+            let inset: CGFloat = 3
+            let glyph = NSRect(x: rect.minX, y: rect.minY,
+                               width: rect.width - inset, height: rect.height - inset)
+            base.draw(in: glyph)
+
+            let diameter: CGFloat = 6
             let dot = NSRect(x: rect.maxX - diameter, y: rect.maxY - diameter,
                              width: diameter, height: diameter)
+
+            // Clear a ring first; without it the dot merges into the glyph.
+            NSGraphicsContext.current?.compositingOperation = .clear
+            NSBezierPath(ovalIn: dot.insetBy(dx: -1.5, dy: -1.5)).fill()
+
+            NSGraphicsContext.current?.compositingOperation = .sourceOver
             NSColor.black.setFill()
             NSBezierPath(ovalIn: dot).fill()
             return true

@@ -19,6 +19,22 @@ enum ArrivalTest {
             let indicator = ArrivalIndicator.shared
             indicator.attach(to: item)
 
+            // Render both states to disk: "the dot never drew" and "the dot
+            // drew but is invisible in a menu bar" look identical from here.
+            if let base = item.button?.image {
+                let out = FileManager.default.temporaryDirectory
+                for (name, image) in [("base", base), ("badged", ArrivalIndicator.badged(base))] {
+                    guard let tiff = image.tiffRepresentation,
+                          let rep = NSBitmapImageRep(data: tiff),
+                          let png = rep.representation(using: .png, properties: [:]) else { continue }
+                    let url = out.appendingPathComponent("klipt-icon-\(name).png")
+                    try? png.write(to: url)
+                    print("  wrote \(url.path)  size=\(image.size)  template=\(image.isTemplate)")
+                }
+            } else {
+                print("  NO BASE IMAGE — attach captured nothing, the dot can never draw")
+            }
+
             print("arrival test — watch the menu bar")
             print("  reduce motion: \(NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)")
 
