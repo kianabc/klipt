@@ -4,10 +4,15 @@ All notable changes to Klipt. Newest first.
 
 ## [1.9.1] — 2026-10-03
 
+### Changed
+- The menu bar icon now turns orange when a clip arrives from another Mac,
+  instead of showing a small dot. It goes back to normal when you open the
+  tray, copy or paste anything, or after five minutes.
+
 ### Fixed
-- The menu bar icon never visibly changed when a clip arrived from another
-  Mac. The dot was being drawn, but in the same colour as the icon and on top
-  of it, so it was invisible.
+- Nothing visibly changed in the menu bar when a clip arrived. The dot was
+  being drawn, but in the same colour as the icon and on top of it, so it was
+  invisible.
 
 ## [1.9.0] — 2026-10-03
 

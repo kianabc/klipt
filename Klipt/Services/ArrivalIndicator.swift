@@ -120,38 +120,31 @@ final class ArrivalIndicator {
 
     private func redraw() {
         guard let button = statusItem?.button, let base = baseImage else { return }
-        button.image = showingDot ? Self.badged(base) : base
+        button.image = showingDot ? Self.tinted(base, with: Self.arrivalTint) : base
     }
 
-    /// A template image is a single-colour mask: the menu bar paints every
-    /// opaque pixel the same shade. So a dot drawn straight onto the glyph is
-    /// the same colour as the glyph and simply disappears. It needs a
-    /// transparent gap punched around it to read as a separate mark.
+    /// Klipt's own orange, from the website palette.
+    static let arrivalTint = NSColor(red: 0xF5 / 255.0, green: 0x9E / 255.0,
+                                     blue: 0x0B / 255.0, alpha: 1)
+
+    /// Recolour the whole icon rather than badge it.
     ///
-    /// The glyph is also drawn slightly smaller and offset, so the badge sits
-    /// in genuinely empty space rather than on top of the clipboard shape.
-    static func badged(_ base: NSImage) -> NSImage {
+    /// A 6pt dot is a weak signal, and on a template image it is worse than
+    /// weak: a template is a single-colour mask, so the menu bar paints the
+    /// dot the same shade as the glyph and it vanishes. Tinting means giving
+    /// up template rendering — the icon no longer follows the menu bar's own
+    /// light/dark colour — which is the point, since standing out is the
+    /// entire job.
+    static func tinted(_ base: NSImage, with colour: NSColor) -> NSImage {
         let size = base.size
         let image = NSImage(size: size, flipped: false) { rect in
-            let inset: CGFloat = 3
-            let glyph = NSRect(x: rect.minX, y: rect.minY,
-                               width: rect.width - inset, height: rect.height - inset)
-            base.draw(in: glyph)
-
-            let diameter: CGFloat = 6
-            let dot = NSRect(x: rect.maxX - diameter, y: rect.maxY - diameter,
-                             width: diameter, height: diameter)
-
-            // Clear a ring first; without it the dot merges into the glyph.
-            NSGraphicsContext.current?.compositingOperation = .clear
-            NSBezierPath(ovalIn: dot.insetBy(dx: -1.5, dy: -1.5)).fill()
-
-            NSGraphicsContext.current?.compositingOperation = .sourceOver
-            NSColor.black.setFill()
-            NSBezierPath(ovalIn: dot).fill()
+            base.draw(in: rect)
+            // sourceAtop keeps the glyph's alpha and replaces its colour.
+            colour.setFill()
+            rect.fill(using: .sourceAtop)
             return true
         }
-        image.isTemplate = true
+        image.isTemplate = false
         return image
     }
 

@@ -23,7 +23,7 @@ enum ArrivalTest {
             // drew but is invisible in a menu bar" look identical from here.
             if let base = item.button?.image {
                 let out = FileManager.default.temporaryDirectory
-                for (name, image) in [("base", base), ("badged", ArrivalIndicator.badged(base))] {
+                for (name, image) in [("base", base), ("tinted", ArrivalIndicator.tinted(base, with: ArrivalIndicator.arrivalTint))] {
                     guard let tiff = image.tiffRepresentation,
                           let rep = NSBitmapImageRep(data: tiff),
                           let png = rep.representation(using: .png, properties: [:]) else { continue }
