@@ -2,6 +2,16 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.9.3] — 2026-10-04
+
+### Fixed
+- Klipt only looked for updates when it launched. Since it lives in the menu
+  bar and is rarely quit, that meant it checked once and then never again, and
+  new versions could sit unnoticed for weeks. It now checks every day while
+  running.
+- The update offer no longer appears while the tray is open, where it would
+  steal focus and close what you were looking at.
+
 ## [1.9.2] — 2026-10-03
 
 ### Fixed

@@ -29,6 +29,32 @@ enum UpdaterSelfTest {
 
             print("updater selftest")
 
+            // The schedule rule decides whether the app ever looks. It is
+            // pure clock arithmetic, so it can be checked outright — and it
+            // got this wrong once already, by only ever being asked at launch.
+            let savedLast = UpdatePreference.lastChecked
+            let savedAuto = UpdatePreference.automatic
+            UpdatePreference.automatic = true
+            UpdatePreference.lastChecked = Date().addingTimeInterval(-25 * 3600)
+            await check("due after 25 hours", "a day-old check is stale") {
+                UpdatePreference.isDue ? nil : "said not due"
+            }
+            UpdatePreference.lastChecked = Date().addingTimeInterval(-23 * 3600)
+            await check("not due after 23 hours", "still inside the window") {
+                UpdatePreference.isDue ? "said due" : nil
+            }
+            UpdatePreference.lastChecked = nil
+            await check("due when never checked", "a fresh install looks once") {
+                UpdatePreference.isDue ? nil : "said not due"
+            }
+            UpdatePreference.automatic = false
+            UpdatePreference.lastChecked = Date().addingTimeInterval(-99 * 3600)
+            await check("never due when switched off", "automatic checks off is honoured") {
+                UpdatePreference.isDue ? "said due anyway" : nil
+            }
+            UpdatePreference.automatic = savedAuto
+            UpdatePreference.lastChecked = savedLast
+
             // 1. A perfectly valid, Apple-notarised app that simply isn't ours.
             //    This is the attack the Team ID check exists for.
             let updater = Updater(currentVersion: "0.0.1")

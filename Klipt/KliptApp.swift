@@ -24,6 +24,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var screenshotService: ScreenshotService!
     private var dragMonitor: DragMonitor!
     private var statusItem: NSStatusItem?
+    private var updateTimer: Timer?
     private var flashTimer: Timer?
     private var expirationTimer: Timer?
     private var activityToken: NSObjectProtocol?
@@ -67,7 +68,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         screenshotService.start()
         // Silent unless something is actually available, and at most once
         // a day — a launch should never wait on the network.
+        // Don't steal focus with a modal offer while the tray is up — the
+        // panel dismisses when it loses key, so the alert would destroy what
+        // the user was in the middle of doing.
+        UpdateCoordinator.shared.shouldDefer = { [weak self] in
+            self?.kliptPanel?.isVisible ?? false
+        }
         UpdateCoordinator.shared.checkIfDue()
+        // Ask again every hour. The 24-hour rule inside still decides whether
+        // anything happens, so this is one request a day — the tick only reads
+        // the clock. A menu bar app runs for weeks, so asking once at launch
+        // meant checking on day one and never again.
+        //
+        // Hourly rather than daily on purpose: a 24-hour timer fires a moment
+        // before the previous check is 24 hours old, finds it not due, and
+        // waits another full day — silently becoming every two days. Hourly
+        // also catches up within the hour after the lid is opened.
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 60 * 60, repeats: true) { _ in
+            MainActor.assumeIsolated { UpdateCoordinator.shared.checkIfDue() }
+        }
         // No-op unless the user has turned sync on.
         SyncEngine.shared.start(store: store)
 

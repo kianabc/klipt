@@ -123,6 +123,10 @@ final class UpdateCoordinator {
     private init() {}
 
     private var busy = false
+    /// Set by the app: true when showing a modal offer would interrupt
+    /// something. Checked at the moment of offering, not of checking.
+    var shouldDefer: (() -> Bool)?
+    private var retryTimer: Timer?
 
     /// Launch path. Silent unless something is actually available, so a normal
     /// start never shows anything.
@@ -143,10 +147,24 @@ final class UpdateCoordinator {
         defer { busy = false }
 
         do {
+            NSLog("Klipt update check: looking")
             let update = try await UpdateChecker().check()
+            // Only on success: a failed check must not push the next one a
+            // day away, or a laptop that was offline at the wrong moment
+            // stops hearing about releases.
             UpdatePreference.lastChecked = Date()
             guard let update else {
+                NSLog("Klipt update check: up to date on \(currentVersion)")
                 if userInitiated { inform("Klipt is up to date.", "You're on \(currentVersion).") }
+                return
+            }
+            NSLog("Klipt update available: \(update.version)")
+
+            // A background offer waits for a better moment; one the user asked
+            // for is shown regardless, since they are already looking at us.
+            if !userInitiated, shouldDefer?() == true {
+                NSLog("Klipt update: deferring the offer, the tray is open")
+                scheduleRetry()
                 return
             }
             guard UpdateOfferAlert.ask(version: "\(update.version)",
@@ -157,6 +175,15 @@ final class UpdateCoordinator {
             if userInitiated {
                 inform("Couldn't check for updates", error.localizedDescription)
             }
+        }
+    }
+
+    /// Try again shortly rather than waiting for the next hourly tick: the
+    /// tray is usually only open for a few seconds.
+    private func scheduleRetry() {
+        retryTimer?.invalidate()
+        retryTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false) { _ in
+            MainActor.assumeIsolated { UpdateCoordinator.shared.checkIfDue() }
         }
     }
 
