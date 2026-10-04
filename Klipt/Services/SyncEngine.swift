@@ -209,10 +209,21 @@ final class SyncEngine {
                                                           inZoneWith: zoneID,
                                                           resultsLimit: 200)
             var arrived = 0
+            // Read the merge history once and write it back once, rather than
+            // rewriting the whole list per record.
+            var merged = Set(Self.mergedIds)
+            var freshlyMerged: [String] = []
             for (_, result) in results {
                 guard let record = try? result.get(),
                       let item = Self.item(from: record) else { continue }
-                // Ours already, or already merged on a previous pull.
+                // Seen before? Skip it. Checking `store.items` alone is not
+                // enough: the store trims to 100 per category but nothing is
+                // deleted from CloudKit, so a trimmed clip comes back on the
+                // next pull, gets re-added, and counts as a fresh arrival —
+                // which is why a machine lit up for its own old clips.
+                if merged.contains(item.id.uuidString) { continue }
+                merged.insert(item.id.uuidString)
+                freshlyMerged.append(item.id.uuidString)
                 if store.items.contains(where: { $0.id == item.id }) { continue }
                 // A clip this machine wrote is not an arrival, even the first
                 // time we read it back.
@@ -220,6 +231,7 @@ final class SyncEngine {
                 store.add(item)
                 if fromElsewhere { arrived += 1 }
             }
+            if !freshlyMerged.isEmpty { Self.appendMerged(freshlyMerged) }
             if arrived > 0 {
                 NSLog("Klipt sync: \(arrived) arrived")
                 // One signal for the whole batch — forty clips on waking is one
@@ -229,6 +241,25 @@ final class SyncEngine {
         } catch {
             NSLog("Klipt sync: pull failed — \(error.localizedDescription)")
         }
+    }
+
+    // MARK: Merge history
+
+    /// Ids already merged, so a clip is never imported twice — and never
+    /// announced twice. Survives relaunch, because the whole point is to
+    /// remember clips the local store has since trimmed away.
+    private static let mergedKey = "app.klipt.mergedRecordIds"
+    /// Bounded: this only has to outlive the records still in the zone.
+    private static let mergedLimit = 1000
+
+    private static func appendMerged(_ ids: [String]) {
+        var all = mergedIds + ids
+        if all.count > mergedLimit { all.removeFirst(all.count - mergedLimit) }
+        UserDefaults.standard.set(all, forKey: mergedKey)
+    }
+
+    private static var mergedIds: [String] {
+        UserDefaults.standard.array(forKey: mergedKey) as? [String] ?? []
     }
 
     private static func item(from record: CKRecord) -> ClipItem? {

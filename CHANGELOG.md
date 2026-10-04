@@ -2,6 +2,15 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.9.2] — 2026-10-03
+
+### Fixed
+- The Mac you copied *on* also turned orange, as if the clip had arrived from
+  somewhere else. Klipt keeps 100 clips per type but nothing was removed from
+  iCloud, so trimmed clips were re-downloaded and announced again as new.
+- Clicking the menu bar icon now clears the orange. Previously you had to open
+  the tray, copy or paste something, or wait five minutes.
+
 ## [1.9.1] — 2026-10-03
 
 ### Changed

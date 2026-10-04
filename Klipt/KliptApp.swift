@@ -15,7 +15,7 @@ struct KliptApp: App {
     }
 }
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var kliptPanel: KliptPanel?
     private var onboardingWindow: OnboardingWindow?
     private var store = ClipboardStore()
@@ -126,11 +126,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit Klipt", action: #selector(quitApp), keyEquivalent: "q"))
+        menu.delegate = self
         statusItem?.menu = menu
     }
 
     @objc func openSettings() {
         kliptPanel?.showSettings()
+    }
+
+    /// Clicking the menu bar icon counts as seeing it.
+    ///
+    /// The tint says "something arrived"; looking at the icon and clicking it
+    /// is the user acknowledging that. Making them open the tray to clear it
+    /// would leave the icon shouting at someone who has already heard.
+    func menuWillOpen(_ menu: NSMenu) {
+        ArrivalIndicator.shared.trayOpened()
     }
 
     @objc func checkForUpdates() {
