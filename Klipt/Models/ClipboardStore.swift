@@ -6,13 +6,19 @@ class ClipboardStore {
     private(set) var items: [ClipItem] = []
     private let storageURL: URL
 
-    init() {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let kliptDir = appSupport.appendingPathComponent("Klipt", isDirectory: true)
-        try? FileManager.default.createDirectory(at: kliptDir, withIntermediateDirectories: true)
-        // Restrict directory permissions to owner only
-        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: kliptDir.path)
-        self.storageURL = kliptDir.appendingPathComponent("clips.json")
+    /// `storageURL` is injectable so tests can exercise the real add/trim/expiry
+    /// rules against a throwaway file rather than the user's actual clips.
+    init(storageURL: URL? = nil) {
+        if let storageURL {
+            self.storageURL = storageURL
+        } else {
+            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let kliptDir = appSupport.appendingPathComponent("Klipt", isDirectory: true)
+            try? FileManager.default.createDirectory(at: kliptDir, withIntermediateDirectories: true)
+            // Restrict directory permissions to owner only
+            try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: kliptDir.path)
+            self.storageURL = kliptDir.appendingPathComponent("clips.json")
+        }
         load()
         purgeExpired()
     }
@@ -44,9 +50,23 @@ class ClipboardStore {
     private let maxItemsPerCategory = 100
 
     func add(_ item: ClipItem) {
-        // Deduplicate text items
+        var item = item
+        // Deduplicate text items, carrying the pin across.
+        //
+        // This used to delete the old copy and insert a fresh, unpinned one,
+        // which silently unpinned anything you re-copied — and re-copying is
+        // exactly what you do with text worth pinning. Once unpinned it was no
+        // longer protected from trimming or expiry, so it quietly vanished
+        // later. Images and files were unaffected because only text is
+        // deduplicated, which is why this looked like a text-only problem.
         if item.type == .text, let text = item.textContent {
-            items.removeAll { $0.type == .text && $0.textContent == text }
+            var wasPinned = false
+            items.removeAll { existing in
+                guard existing.type == .text, existing.textContent == text else { return false }
+                if existing.isPinned { wasPinned = true }
+                return true
+            }
+            if wasPinned { item.isPinned = true }
         }
 
         items.insert(item, at: 0)

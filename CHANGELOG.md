@@ -2,6 +2,15 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.9.4] — 2026-10-05
+
+### Fixed
+- Pinned text could quietly lose its pin and disappear days later. Copying the
+  same text again replaced the pinned clip with a fresh unpinned one — and
+  re-copying is exactly what you do with text worth pinning. Once unpinned it
+  was no longer protected from the 100-per-type limit or from expiry. Only text
+  was affected, since only text is deduplicated.
+
 ## [1.9.3] — 2026-10-04
 
 ### Fixed

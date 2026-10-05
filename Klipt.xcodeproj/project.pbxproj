@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		15F37CC31801A9FEA196C945 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */; };
+		191698A9698ECE939A19F24C /* PinSelfTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A44E043F62207B386E2D3CE /* PinSelfTest.swift */; };
 		1DEA5F02447FC8BF3C955CD4 /* PastePickerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */; };
 		414C35F54D5D7EEC128790A0 /* Klipt.provisionprofile in Resources */ = {isa = PBXBuildFile; fileRef = 4AD901C47B3C664B987AA87D /* Klipt.provisionprofile */; };
 		59E9C1BFFAE7D2D505448962 /* SyncTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAF5F6216D5CD76375606EE5 /* SyncTest.swift */; };
@@ -43,6 +44,7 @@
 		4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipItemView.swift; sourceTree = "<group>"; };
 		5245B65F6C731091C3B9B5B7 /* Klipt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Klipt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55C104AEAC5F9DA90638F458 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		5A44E043F62207B386E2D3CE /* PinSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinSelfTest.swift; sourceTree = "<group>"; };
 		5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		5DFC59D9311EDE66EC574080 /* PreviewPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewPanel.swift; sourceTree = "<group>"; };
 		5EF6BFA9E6192D713D6C963D /* PastePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastePickerView.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */,
 				5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */,
 				91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */,
+				5A44E043F62207B386E2D3CE /* PinSelfTest.swift */,
 				C137386702C3E5214A40B036 /* ScreenshotService.swift */,
 				686B56E70DCCC2BC960F6D56 /* SyncEngine.swift */,
 				DAF5F6216D5CD76375606EE5 /* SyncTest.swift */,
@@ -234,6 +237,7 @@
 				9AE6BAEE6C2C531CEA0AA77E /* OnboardingView.swift in Sources */,
 				1DEA5F02447FC8BF3C955CD4 /* PastePickerPanel.swift in Sources */,
 				88B3FBDF73BDD18E7E134B08 /* PastePickerView.swift in Sources */,
+				191698A9698ECE939A19F24C /* PinSelfTest.swift in Sources */,
 				FFE0B50F367F3D56FEE7B1A9 /* PreviewPanel.swift in Sources */,
 				7F1948D90993CE0376833BFC /* ScreenshotService.swift in Sources */,
 				CE4408D010C6C5094BEAA672 /* SettingsView.swift in Sources */,

@@ -39,6 +39,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Verification is a refusal path, so it has to be exercised
         // deliberately — nothing about a normal launch would reveal a check
         // that silently stopped refusing.
+        if CommandLine.arguments.contains("--pin-selftest") {
+            PinSelfTest.start()
+            return
+        }
+
         if CommandLine.arguments.contains("--sync-test") {
             SyncTest.start()
             return
