@@ -31,6 +31,7 @@
 		D72DE9D81DF9ABCDE90C098D /* UpdateUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40554DDF1675D6770EBEF93 /* UpdateUI.swift */; };
 		DA000F0C86AD0E7318DF1B7E /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA9393164EAABAEB639DC08 /* UpdateChecker.swift */; };
 		E549032CC74515CE110CD71B /* KliptSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A44D93D887DBEB7F10D4F1 /* KliptSettings.swift */; };
+		F3B9DC3A71D6A2142EA5D6D9 /* LoginItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E6A862A381C92781EFCC64 /* LoginItem.swift */; };
 		FEB010208D19E22C20D587A1 /* ArrivalIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD29C83335DB800D571962B /* ArrivalIndicator.swift */; };
 		FFE0B50F367F3D56FEE7B1A9 /* PreviewPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFC59D9311EDE66EC574080 /* PreviewPanel.swift */; };
 /* End PBXBuildFile section */
@@ -43,6 +44,7 @@
 		4AD901C47B3C664B987AA87D /* Klipt.provisionprofile */ = {isa = PBXFileReference; path = Klipt.provisionprofile; sourceTree = "<group>"; };
 		4CA7DC3B7048BCCCBE54B48A /* ClipItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipItemView.swift; sourceTree = "<group>"; };
 		5245B65F6C731091C3B9B5B7 /* Klipt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Klipt.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		53E6A862A381C92781EFCC64 /* LoginItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItem.swift; sourceTree = "<group>"; };
 		55C104AEAC5F9DA90638F458 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		5A44E043F62207B386E2D3CE /* PinSelfTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinSelfTest.swift; sourceTree = "<group>"; };
 		5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				1F85DE40F13B8D03A0A7381C /* ClipboardMonitor.swift */,
 				041F90480C362DAC0A2C7714 /* DragTrayWindow.swift */,
 				5B9A27A0AFD03997395A9B01 /* HotkeyManager.swift */,
+				53E6A862A381C92781EFCC64 /* LoginItem.swift */,
 				91E6968D51C43F28051A6DE6 /* PastePickerPanel.swift */,
 				5A44E043F62207B386E2D3CE /* PinSelfTest.swift */,
 				C137386702C3E5214A40B036 /* ScreenshotService.swift */,
@@ -234,6 +237,7 @@
 				15F37CC31801A9FEA196C945 /* HotkeyManager.swift in Sources */,
 				6D2C2B2DFCED6B700C8BF3C6 /* KliptApp.swift in Sources */,
 				E549032CC74515CE110CD71B /* KliptSettings.swift in Sources */,
+				F3B9DC3A71D6A2142EA5D6D9 /* LoginItem.swift in Sources */,
 				9AE6BAEE6C2C531CEA0AA77E /* OnboardingView.swift in Sources */,
 				1DEA5F02447FC8BF3C955CD4 /* PastePickerPanel.swift in Sources */,
 				88B3FBDF73BDD18E7E134B08 /* PastePickerView.swift in Sources */,

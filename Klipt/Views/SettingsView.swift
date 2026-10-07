@@ -6,6 +6,7 @@ struct SettingsView: View {
     let onShortcutsChanged: () -> Void
 
     @State private var recordingShortcut = false
+    @State private var launchAtLogin = LoginItem.isEnabled
     @State private var showResetConfirmation = false
 
     var body: some View {
@@ -105,6 +106,43 @@ struct SettingsView: View {
                         .padding(.vertical, 5)
                         .background(Color.red.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 7))
+                    }
+                }
+
+                // Launch at login
+                settingsCard {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Label {
+                                Text("Start Klipt at login")
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(.primary.opacity(0.85))
+                            } icon: {
+                                Image(systemName: "power")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.green)
+                            }
+                            Spacer()
+                            Toggle("", isOn: Binding(
+                                get: { launchAtLogin },
+                                set: { wanted in
+                                    LoginItem.setEnabled(wanted)
+                                    // Read the state back rather than trusting
+                                    // the write: macOS can refuse, and a toggle
+                                    // showing a state the system disagrees with
+                                    // is worse than one that springs back.
+                                    launchAtLogin = LoginItem.isEnabled
+                                }))
+                                .labelsHidden()
+                                .toggleStyle(.switch)
+                                .controlSize(.small)
+                        }
+                        if LoginItem.needsApproval {
+                            Text("macOS is blocking this. Allow Klipt under System Settings → General → Login Items.")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
                 }
 

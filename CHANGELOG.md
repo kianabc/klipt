@@ -2,6 +2,13 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.9.5] — 2026-10-07
+
+### Added
+- Klipt starts automatically when you log in, and there's a switch for it in
+  Settings. It's on by default — a clipboard manager that isn't running does
+  nothing — but turning it off sticks.
+
 ## [1.9.4] — 2026-10-05
 
 ### Fixed
