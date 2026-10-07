@@ -7,6 +7,7 @@ struct SettingsView: View {
 
     @State private var recordingShortcut = false
     @State private var launchAtLogin = LoginItem.isEnabled
+    @State private var updateFrequency = UpdatePreference.frequency
     @State private var showResetConfirmation = false
 
     var body: some View {
@@ -178,6 +179,7 @@ struct SettingsView: View {
 
                 // Updates
                 settingsCard {
+                    VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Label {
                             Text("Software Update")
@@ -199,6 +201,25 @@ struct SettingsView: View {
                         .padding(.vertical, 5)
                         .background(Color.primary.opacity(0.08))
                         .clipShape(RoundedRectangle(cornerRadius: 7))
+                    }
+                    HStack {
+                        Text("Check for updates")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Picker("", selection: $updateFrequency) {
+                            ForEach(UpdateFrequency.allCases, id: \.self) { frequency in
+                                Text(frequency.displayName).tag(frequency)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                        .controlSize(.small)
+                        .frame(width: 100)
+                        .onChange(of: updateFrequency) { _, new in
+                            UpdatePreference.frequency = new
+                        }
+                    }
                     }
                 }
 

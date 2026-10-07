@@ -149,9 +149,43 @@ actor UpdateChecker {
     }
 }
 
+enum UpdateFrequency: String, CaseIterable, Sendable {
+    case daily
+    case weekly
+
+    /// Daily, unlike Murmur's weekly. Klipt's current behaviour is daily, and
+    /// quietly halving how often an installed copy hears about a fix would be a
+    /// regression dressed up as a new setting.
+    static let `default`: UpdateFrequency = .daily
+
+    var displayName: String {
+        switch self {
+        case .daily: "Daily"
+        case .weekly: "Weekly"
+        }
+    }
+
+    var interval: TimeInterval {
+        switch self {
+        case .daily: 24 * 60 * 60
+        case .weekly: 7 * 24 * 60 * 60
+        }
+    }
+}
+
 enum UpdatePreference {
     private static let autoKey = "app.klipt.checkForUpdates"
     private static let lastKey = "app.klipt.lastUpdateCheck"
+    private static let frequencyKey = "app.klipt.updateFrequency"
+
+    static var frequency: UpdateFrequency {
+        get {
+            guard let raw = UserDefaults.standard.string(forKey: frequencyKey),
+                  let value = UpdateFrequency(rawValue: raw) else { return .default }
+            return value
+        }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: frequencyKey) }
+    }
 
     static var automatic: Bool {
         get { UserDefaults.standard.object(forKey: autoKey) as? Bool ?? true }
@@ -163,10 +197,16 @@ enum UpdatePreference {
         set { UserDefaults.standard.set(newValue, forKey: lastKey) }
     }
 
-    /// Once a day, and never on the launch path more often than that.
+    /// Daily or weekly, the user's choice.
+    ///
+    /// Murmur needs an hour of slack here because it ticks once a day: each
+    /// tick lands fractionally before the interval is up, finds "not due", and
+    /// waits another full day — daily silently becoming every other day. Klipt
+    /// ticks hourly, so the next chance is only an hour away and no slack is
+    /// needed. Worth knowing if the tick interval is ever lengthened.
     static var isDue: Bool {
         guard automatic else { return false }
         guard let last = lastChecked else { return true }
-        return Date().timeIntervalSince(last) > 24 * 60 * 60
+        return Date().timeIntervalSince(last) > frequency.interval
     }
 }

@@ -34,15 +34,34 @@ enum UpdaterSelfTest {
             // got this wrong once already, by only ever being asked at launch.
             let savedLast = UpdatePreference.lastChecked
             let savedAuto = UpdatePreference.automatic
+            let savedFrequency = UpdatePreference.frequency
             UpdatePreference.automatic = true
+
+            UpdatePreference.frequency = .daily
             UpdatePreference.lastChecked = Date().addingTimeInterval(-25 * 3600)
-            await check("due after 25 hours", "a day-old check is stale") {
+            await check("daily: due after 25 hours", "a day-old check is stale") {
                 UpdatePreference.isDue ? nil : "said not due"
             }
             UpdatePreference.lastChecked = Date().addingTimeInterval(-23 * 3600)
-            await check("not due after 23 hours", "still inside the window") {
+            await check("daily: not due after 23 hours", "still inside the window") {
                 UpdatePreference.isDue ? "said due" : nil
             }
+
+            // Weekly must actually wait a week — the bug to guard against is a
+            // frequency that is stored and displayed but never consulted.
+            UpdatePreference.frequency = .weekly
+            UpdatePreference.lastChecked = Date().addingTimeInterval(-25 * 3600)
+            await check("weekly: not due after 25 hours", "a day is not a week") {
+                UpdatePreference.isDue ? "said due after one day" : nil
+            }
+            UpdatePreference.lastChecked = Date().addingTimeInterval(-8 * 24 * 3600)
+            await check("weekly: due after 8 days", "past the week") {
+                UpdatePreference.isDue ? nil : "said not due"
+            }
+            await check("frequency survives a round trip", "stored and read back") {
+                UpdatePreference.frequency == .weekly ? nil : "read back something else"
+            }
+            UpdatePreference.frequency = .daily
             UpdatePreference.lastChecked = nil
             await check("due when never checked", "a fresh install looks once") {
                 UpdatePreference.isDue ? nil : "said not due"
@@ -54,6 +73,7 @@ enum UpdaterSelfTest {
             }
             UpdatePreference.automatic = savedAuto
             UpdatePreference.lastChecked = savedLast
+            UpdatePreference.frequency = savedFrequency
 
             // 1. A perfectly valid, Apple-notarised app that simply isn't ours.
             //    This is the attack the Team ID check exists for.

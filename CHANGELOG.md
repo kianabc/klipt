@@ -2,6 +2,12 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.9.6] — 2026-10-07
+
+### Added
+- Choose how often Klipt checks for updates, daily or weekly, in Settings.
+  Daily stays the default.
+
 ## [1.9.5] — 2026-10-07
 
 ### Added
