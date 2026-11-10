@@ -2,6 +2,13 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.9.9] — 2026-11-10
+
+### Fixed
+- 1.9.8 said it would clear the oversized cache on launch. It could not: macOS
+  refuses the app access to that folder. The claim is withdrawn rather than
+  left to fail silently every launch.
+
 ## [1.9.8] — 2026-11-10
 
 ### Fixed
@@ -9,9 +16,10 @@ All notable changes to Klipt. Newest first.
   macOS's CloudKit cache with hundreds of gigabytes. It now fetches only the
   details it needs to spot a new clip, and downloads the actual contents once,
   for clips it is actually taking.
-- Klipt now reclaims that space for you. If its CloudKit cache is over a
-  gigabyte, it is cleared on launch — nobody should have to find that folder
-  themselves.
+- Klipt cannot reclaim that space itself, despite 1.9.8 claiming it would.
+  macOS protects the cache folder, so the app is refused access to it even
+  though you own it. Clearing it is a one-time manual step; the leak itself is
+  fixed, so it will not come back.
 
 ## [1.9.6] — 2026-10-07
 

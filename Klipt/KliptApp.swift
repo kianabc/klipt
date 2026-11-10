@@ -105,8 +105,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // No-op unless the user has turned sync on.
         SyncEngine.shared.start(store: store)
         LoginItem.applyDefaultOnFirstLaunch()
-        // Give back the disk space the pre-1.9.7 sync bug consumed.
-        CloudKitCacheCleanup.reclaimIfBloated()
 
         expirationTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
             self?.store.purgeExpired()
