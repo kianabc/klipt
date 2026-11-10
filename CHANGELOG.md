@@ -2,6 +2,14 @@
 
 All notable changes to Klipt. Newest first.
 
+## [1.9.7] — 2026-11-10
+
+### Fixed
+- Sync re-downloaded every synced image and file once a minute, filling
+  macOS's CloudKit cache with hundreds of gigabytes. It now fetches only the
+  details it needs to spot a new clip, and downloads the actual contents once,
+  for clips it is actually taking.
+
 ## [1.9.6] — 2026-10-07
 
 ### Added

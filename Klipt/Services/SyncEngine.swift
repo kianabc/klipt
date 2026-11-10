@@ -205,26 +205,55 @@ final class SyncEngine {
                             predicate: NSPredicate(value: true))
         query.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         do {
+            // Metadata only — deliberately NOT the asset.
+            //
+            // Without desiredKeys this fetches every field, and CloudKit
+            // materialises each CKAsset into its on-disk cache as part of the
+            // fetch. Polling every 60 seconds therefore re-downloaded every
+            // image and file in the zone, every minute, forever. Nothing is
+            // deleted from the zone either, so it only grew. That filled
+            // ~/Library/Caches/CloudKit with 400 GB on one machine.
+            //
+            // The merged-ids check below does not help with this: it runs
+            // after the fetch, so it prevents re-adding a clip but not
+            // re-downloading it.
             let (results, _) = try await database.records(matching: query,
                                                           inZoneWith: zoneID,
+                                                          desiredKeys: Self.metadataKeys,
                                                           resultsLimit: 200)
             var arrived = 0
             // Read the merge history once and write it back once, rather than
             // rewriting the whole list per record.
             var merged = Set(Self.mergedIds)
             var freshlyMerged: [String] = []
-            for (_, result) in results {
+            for (recordID, result) in results {
                 guard let record = try? result.get(),
-                      let item = Self.item(from: record) else { continue }
+                      let uuid = UUID(uuidString: recordID.recordName) else { continue }
+                // Decide whether this one is wanted before paying for its
+                // payload. Everything above this line is cheap.
+                if merged.contains(uuid.uuidString) { continue }
+                merged.insert(uuid.uuidString)
+                freshlyMerged.append(uuid.uuidString)
+                if store.items.contains(where: { $0.id == uuid }) { continue }
+
+                // Now, and only for a clip actually being taken, fetch the
+                // whole record so the asset comes down — once, not every
+                // minute.
+                var complete = record
+                let kind = record["kind"] as? String ?? "text"
+                if kind == "image" || kind == "file" {
+                    guard let fetched = try? await database.record(for: recordID) else {
+                        NSLog("Klipt sync: could not fetch the payload for \(uuid)")
+                        continue
+                    }
+                    complete = fetched
+                }
+                guard let item = Self.item(from: complete) else { continue }
                 // Seen before? Skip it. Checking `store.items` alone is not
                 // enough: the store trims to 100 per category but nothing is
                 // deleted from CloudKit, so a trimmed clip comes back on the
                 // next pull, gets re-added, and counts as a fresh arrival —
                 // which is why a machine lit up for its own old clips.
-                if merged.contains(item.id.uuidString) { continue }
-                merged.insert(item.id.uuidString)
-                freshlyMerged.append(item.id.uuidString)
-                if store.items.contains(where: { $0.id == item.id }) { continue }
                 // A clip this machine wrote is not an arrival, even the first
                 // time we read it back.
                 let fromElsewhere = (record["device"] as? String) != Self.deviceName
@@ -242,6 +271,11 @@ final class SyncEngine {
             NSLog("Klipt sync: pull failed — \(error.localizedDescription)")
         }
     }
+
+    /// Everything except `asset`. Naming the fields is what keeps the payloads
+    /// out of the polling fetch — see the note in pull().
+    private static let metadataKeys = ["kind", "createdAt", "pinned", "device",
+                                       "fileName", "fileUTI", "text"]
 
     // MARK: Merge history
 
