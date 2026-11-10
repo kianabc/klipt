@@ -39,6 +39,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Verification is a refusal path, so it has to be exercised
         // deliberately — nothing about a normal launch would reveal a check
         // that silently stopped refusing.
+        if CommandLine.arguments.contains("--cache-status") {
+            CloudKitCacheStatus.report()
+            exit(0)
+        }
+
         if CommandLine.arguments.contains("--login-status") {
             LoginItemStatus.print()
             exit(0)
@@ -100,6 +105,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // No-op unless the user has turned sync on.
         SyncEngine.shared.start(store: store)
         LoginItem.applyDefaultOnFirstLaunch()
+        // Give back the disk space the pre-1.9.7 sync bug consumed.
+        CloudKitCacheCleanup.reclaimIfBloated()
 
         expirationTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
             self?.store.purgeExpired()
